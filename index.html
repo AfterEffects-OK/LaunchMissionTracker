@@ -33,7 +33,7 @@
     .container {
       position: relative;
       z-index: 1;
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
       padding: 20px;
       width: 100%;
@@ -92,14 +92,15 @@
       box-shadow: 0 0 15px var(--accent-glow);
     }
 
+    /* 3カラムレイアウト設定 */
     .main-grid {
       display: grid;
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 320px 1fr 380px;
       gap: 20px;
-      flex: 1;
+      align-items: start;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1200px) {
       .main-grid {
         grid-template-columns: 1fr;
       }
@@ -113,10 +114,16 @@
       backdrop-filter: blur(10px);
     }
 
+    .sequence-card {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 140px);
+    }
+
     .launch-list-card {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      max-height: calc(100vh - 140px);
     }
 
     .launch-scroll-container {
@@ -124,13 +131,11 @@
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
-      max-height: 600px;
-      padding-right: 10px;
-      padding-bottom: 20px;
-      scroll-behavior: smooth;
+      max-height: calc(100vh - 210px);
+      padding-right: 5px;
+      margin-top: 15px;
     }
 
-    /* スクロールバーの統一スタイル */
     .launch-scroll-container::-webkit-scrollbar,
     .timeline-container::-webkit-scrollbar,
     .modal-content::-webkit-scrollbar,
@@ -194,9 +199,25 @@
       padding: 20px 10px;
     }
 
+    /* ミッションタイトルのレイアウト制御 */
     .mission-title {
       font-size: 1.8rem;
       margin-bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: baseline;
+      gap: 0.3em;
+    }
+
+    .mission-main-text {
+      white-space: nowrap; /* メインタイトルは途中で不自然に切れないようにする */
+    }
+
+    .mission-sub-text {
+      white-space: nowrap; /* カッコ内が途中でバラバラに改行されるのを防ぐ */
+      color: var(--text-muted);
+      font-size: 1.4rem;  /* メインより少し控えめにする場合 */
     }
 
     .mission-sub {
@@ -206,7 +227,7 @@
     }
 
     .timer {
-      font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Sans", Meiryo, sans-serif;
+      font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-variant-numeric: tabular-nums;
       font-size: 3.5rem;
       font-weight: bold;
@@ -228,11 +249,42 @@
       border: 1px solid var(--accent-blue);
     }
 
-    .event-status-grid {
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .telemetry-card {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .telemetry-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .telemetry-value {
+      font-family: monospace;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--accent-blue);
+    }
+
+    /* イベントステータスを縦（スタック）表示に変更 */
+    .event-status-stack {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 15px;
       text-align: left;
     }
 
@@ -278,11 +330,12 @@
       color: var(--accent-blue);
     }
 
+    /* 独立スクロールエリア */
     .timeline-container {
-      max-height: 320px;
+      flex: 1;
       overflow-y: auto;
       padding-right: 10px;
-      padding-bottom: 40px;
+      padding-bottom: 60vh;
       margin-top: 15px;
       scroll-behavior: smooth;
     }
@@ -291,7 +344,7 @@
       display: flex;
       align-items: baseline;
       gap: 15px;
-      padding: 10px 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       position: relative;
     }
@@ -374,40 +427,56 @@
     <div class="main-grid">
       <!-- 左側：打ち上げ一覧リスト -->
       <div class="card launch-list-card">
-        <h3 style="color: var(--accent-blue); margin-bottom: 5px;">打ち上げ一覧</h3>
+        <h3 style="color: var(--accent-blue);">打ち上げ一覧</h3>
         <div id="launchListContainer" class="launch-scroll-container"></div>
       </div>
 
-      <!-- 右側：メインのカウントダウン & シーケンスタイムライン -->
-      <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="card countdown-display">
-          <div class="status-badge" id="presetBadge">PRESET</div>
-          <h2 class="mission-title" id="missionTitle">ミッションを選択してください</h2>
-          <div class="mission-sub" id="missionSub">---</div>
-          <div class="timer" id="timerDisplay">T- 00:00:00</div>
-          <div id="targetTime" style="color: var(--text-muted); font-size: 0.9rem;"></div>
+      <!-- 中央：カウントダウン表示 ＆ テレメトリ ＆ イベント -->
+      <div class="card countdown-display">
+        <div class="status-badge" id="presetBadge">PRESET</div>
+        
+        <!-- ミッションタイトル表示部分（折り返し制御） -->
+        <h2 class="mission-title" id="missionTitle">
+          <span class="mission-main-text">ミッションを選択してください</span>
+        </h2>
 
-          <div class="event-status-grid">
-            <div class="event-card current">
-              <div class="event-header">
-                <span class="event-label">CURRENT EVENT</span>
-              </div>
-              <div class="event-text" id="currentEventText">---</div>
-            </div>
-            <div class="event-card">
-              <div class="event-header">
-                <span class="event-label">NEXT EVENT</span>
-                <span class="event-countdown" id="nextEventCountdown"></span>
-              </div>
-              <div class="event-text" id="nextEventText">---</div>
-            </div>
+        <div class="mission-sub" id="missionSub">---</div>
+        <div class="timer" id="timerDisplay">T- 00:00:00</div>
+        <div id="targetTime" style="color: var(--text-muted); font-size: 0.9rem;"></div>
+
+        <div class="telemetry-grid">
+          <div class="telemetry-card">
+            <div class="telemetry-label">Velocity (速度)</div>
+            <div class="telemetry-value" id="telemetryVelocity">0 km/h</div>
+          </div>
+          <div class="telemetry-card">
+            <div class="telemetry-label">Altitude (高度)</div>
+            <div class="telemetry-value" id="telemetryAltitude">0.0 km</div>
           </div>
         </div>
 
-        <div class="card">
-          <h3 style="margin-bottom: 10px; color: var(--accent-blue);">ミッション シーケンス</h3>
-          <div class="timeline-container" id="timelineList"></div>
+        <!-- スタック（縦積み）表示用のラッパー -->
+        <div class="event-status-stack">
+          <div class="event-card current">
+            <div class="event-header">
+              <span class="event-label">CURRENT EVENT</span>
+            </div>
+            <div class="event-text" id="currentEventText">---</div>
+          </div>
+          <div class="event-card">
+            <div class="event-header">
+              <span class="event-label">NEXT EVENT</span>
+              <span class="event-countdown" id="nextEventCountdown"></span>
+            </div>
+            <div class="event-text" id="nextEventText">---</div>
+          </div>
         </div>
+      </div>
+
+      <!-- 右側：ミッション シーケンス -->
+      <div class="card sequence-card">
+        <h3 style="color: var(--accent-blue);">ミッション シーケンス</h3>
+        <div class="timeline-container" id="timelineList"></div>
       </div>
     </div>
   </div>
@@ -432,7 +501,7 @@
           { offset: -2100, label: "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
           { offset: -420,  label: "Falcon 9 エンジン冷却 (Engine Chill)" },
           { offset: -300,  label: "【Go/No-Go ポーリング】 発射管制ディレクター確認" },
-          { offset: -280,  label: "【Go/No-Go ポーリング】 チーフエンジニア・各担当コール" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
           { offset: -60,   label: "フライトコンピューター制御移行" },
           { offset: -3,    label: "エンジン点火シーケンス開始" },
           { offset: 0,     label: "リフトオフ (Liftoff)" },
@@ -441,32 +510,8 @@
           { offset: 151,   label: "第1段 / 第2段 分離" },
           { offset: 158,   label: "SES-1 (第2段エンジン点火)" },
           { offset: 200,   label: "ペロードフェアリング分離" },
-          { offset: 400,   label: "第1段 エントリーバーン" },
           { offset: 500,   label: "第1段 着陸バーン / ドローンシップ着陸" },
-          { offset: 520,   label: "SECO-1 (第2段エンジン停止 / 軌道投入)" }
-        ]
-      },
-      falconHeavy: {
-        name: "SpaceX Falcon Heavy",
-        prefix: "T",
-        timeline: [
-          { offset: -3000, label: "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
-          { offset: -420,  label: "全コア エンジン冷却 (Engine Chill)" },
-          { offset: -300,  label: "【Go/No-Go ポーリング】 発射管制ディレクター確認" },
-          { offset: -280,  label: "【Go/No-Go ポーリング】 全コア・システム担当コール" },
-          { offset: -60,   label: "フライトコンピューター制御移行" },
-          { offset: -5,    label: "コアエンジン点火シーケンス開始" },
-          { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 70,    label: "Max-Q (最大動圧点通過)" },
-          { offset: 150,   label: "両サイドブースター 停止 (BECO)" },
-          { offset: 154,   label: "サイドブースター分離" },
-          { offset: 160,   label: "サイドブースター ブーストバックバーン" },
-          { offset: 230,   label: "センターコア 停止 (MECO)" },
-          { offset: 235,   label: "センターコア / 第2段 分離" },
-          { offset: 242,   label: "SES-1 (第2段エンジン点火)" },
-          { offset: 250,   label: "フェアリング分離" },
-          { offset: 480,   label: "サイドブースター 陸上同時着陸" },
-          { offset: 510,   label: "センターコア ドローンシップ着陸" }
+          { offset: 520,   label: "SECO-1 (軌道投入)" }
         ]
       },
       starship: {
@@ -475,17 +520,14 @@
         timeline: [
           { offset: -2900, label: "液体メタン & 液体酸素 充填開始" },
           { offset: -360,  label: "【Go/No-Go ポーリング】 フライトディレクター確認" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
           { offset: -120,  label: "スーパーヘヴィ / スターシップ 冷却開始" },
-          { offset: -10,   label: "ウォーター・ディフレクター散水開始" },
           { offset: -3,    label: "ラプターエンジン33基 点火開始" },
           { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 55,    label: "Max-Q (最大動圧点通過)" },
+          { offset: 55,    label: "Max-Q 通過" },
           { offset: 160,   label: "Hot-Staging (1段点火のまま2段点火・分離)" },
-          { offset: 165,   label: "スーパーヘヴィ ブーストバックバーン" },
           { offset: 400,   label: "スーパーヘヴィ Mechazilla空中キャッチ" },
-          { offset: 510,   label: "スターシップ エンジン停止 (軌道到達)" },
-          { offset: 2700,  label: "スターシップ 大気圏再突入 (Belly flop)" },
-          { offset: 3900,  label: "フリップ & 垂直着陸" }
+          { offset: 510,   label: "スターシップ エンジン停止 (軌道到達)" }
         ]
       },
       jaxa: {
@@ -494,103 +536,14 @@
         timeline: [
           { offset: -1800, label: "ターミナルカウントダウン準備" },
           { offset: -480,  label: "【Go/No-Go コーリング】 発射管制長による最終確認" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
           { offset: -270,  label: "自動カウントダウンシーケンス開始" },
-          { offset: -10,   label: "LE-9 メインエンジン点火準備" },
           { offset: -3,    label: "LE-9 メインエンジン点火" },
           { offset: 0,     label: "SRB-3 (固体ブースター) 点火 / 離昇 (Liftoff)" },
-          { offset: 80,    label: "Max-Q (最大動圧通過)" },
+          { offset: 80,    label: "Max-Q 通過" },
           { offset: 116,   label: "SRB-3 分離" },
           { offset: 210,   label: "衛星フェアリング分離" },
-          { offset: 296,   label: "MECO (第1段エンジン停止)" },
-          { offset: 304,   label: "第1段 / 第2段分離" },
-          { offset: 318,   label: "SECO-1 (第2段 LE-5B-3 点火)" },
-          { offset: 1000,  label: "SECO-2 / 衛星分離" }
-        ]
-      },
-      electron: {
-        name: "Rocket Lab Electron",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "自動シーケンス開始" },
-          { offset: -300,  label: "【Go/No-Go ポーリング】 ミッションディレクター確認" },
-          { offset: -120,  label: "Rutherford エンジンパージ" },
-          { offset: -2,    label: "Rutherford エンジン点火" },
-          { offset: 0,     label: "リフトオフ" },
-          { offset: 65,    label: "Max-Q 通過" },
-          { offset: 150,   label: "MECO (第1段停止)" },
-          { offset: 154,   label: "ステージ分離" },
-          { offset: 157,   label: "第2段エンジン点火" },
-          { offset: 200,   label: "フェアリング分離" },
-          { offset: 530,   label: "SECO (第2段停止)" }
-        ]
-      },
-      isro: {
-        name: "ISRO PSLV / LMV3 (インド)",
-        prefix: "T",
-        timeline: [
-          { offset: -900, label: "自動シーケンス (Automatic Launch Sequence) 開始" },
-          { offset: -300, label: "【Go/No-Go コーリング】 ディレクターおよび各サブシステム確認" },
-          { offset: -60,  label: "オンボード・コンピュータ制御移行" },
-          { offset: -5,   label: "第1段コアエンジン点火" },
-          { offset: 0,    label: "ストラップオンブースター点火 / リフトオフ" },
-          { offset: 70,   label: "ストラップオンブースター分離" },
-          { offset: 110,  label: "PS1 (第1段) 分離 / PS2 (第2段) 点火" },
-          { offset: 165,  label: "フェアリング分離" },
-          { offset: 260,  label: "PS2 (第2段) 停止・分離 / PS3 (第3段) 点火" },
-          { offset: 600,  label: "PS3 (第3段) 燃焼完了・コースティング" },
-          { offset: 900,  label: "PS4 (第4段) 点火 / 最終軌道投入" },
-          { offset: 1200, label: "衛星分離 (PayLoad Deployment)" }
-        ]
-      },
-      cnsa: {
-        name: "CNSA 長征 (Long March / 中国)",
-        prefix: "T",
-        timeline: [
-          { offset: -900, label: "ターミナルカウントダウン開始" },
-          { offset: -300, label: "【Go/No-Go ポーリング】 総合指揮官による最終ステータス確認" },
-          { offset: -120, label: "ロケット内部電源切替" },
-          { offset: -10,  label: "自動点火シーケンス始動" },
-          { offset: 0,    label: "メインエンジン点火 / 離昇 (Liftoff)" },
-          { offset: 140,  label: "ストラップオンブースター分離" },
-          { offset: 160,  label: "第1段分離 / 第2段エンジン点火" },
-          { offset: 210,  label: "整流罩 (フェアリング) 分離" },
-          { offset: 500,  label: "第2段メインエンジン停止" },
-          { offset: 515,  label: "第2段バーニアエンジン停止" },
-          { offset: 540,  label: "ペイロード / 衛星分離" }
-        ]
-      },
-      kari: {
-        name: "KARI ヌリ号 (Nuri / 韓国)",
-        prefix: "T",
-        timeline: [
-          { offset: -600, label: "起立台撤収 / 最終点検" },
-          { offset: -300, label: "【Go/No-Go ポーリング】 発射管理委員会による確認" },
-          { offset: -60,  label: "発射前自動点火システム (PLO) 起動" },
-          { offset: -10,  label: "1段75tロケットエンジン4基 点火準備" },
-          { offset: 0,    label: "フルパワー到達 / リフトオフ" },
-          { offset: 125,  label: "第1段分離 / 第2段エンジン点火" },
-          { offset: 234,  label: "フェアリング分離" },
-          { offset: 272,  label: "第2段分離 / 第3段7tエンジン点火" },
-          { offset: 780,  label: "第3段エンジン停止 (目標軌道到達)" },
-          { offset: 840,  label: "次世代小型衛星 / 搭載ペロード分離" }
-        ]
-      },
-      roscosmos: {
-        name: "Roscosmos ソユーズ (Soyuz / ロシア)",
-        prefix: "T",
-        timeline: [
-          { offset: -300, label: "【Go/No-Go コーリング】 発射責任者および各セクション確認" },
-          { offset: -300, label: "発射台サービスアーム開放 (Service Arms Separation)" },
-          { offset: -60,  label: "ターミネータ (自動制御) 移行" },
-          { offset: -20,  label: "タービン起動 / 点火コマンド発行" },
-          { offset: -5,   label: "エンジン最大出力到達 (Full Thrust)" },
-          { offset: 0,    label: "リフトオフ (発射)" },
-          { offset: 118,  label: "緊急脱出システム(SAS) タワー切り離し" },
-          { offset: 118,  label: "第1段 (ストラップオンブースター4基) 分離 (Korolev Cross)" },
-          { offset: 157,  label: "ペロードフェアリング分離" },
-          { offset: 288,  label: "第2段 (コアステージ) 分離 / 第3段 Hot-Separation 点火" },
-          { offset: 528,  label: "第3段エンジン停止 (SECO)" },
-          { offset: 530,  label: "ソユーズ宇宙船 / 衛星分離 (Orbital Insertion)" }
+          { offset: 296,   label: "MECO / 第1段・第2段分離" }
         ]
       },
       default: {
@@ -599,28 +552,18 @@
         timeline: [
           { offset: -900, label: "ターミナルカウントダウン開始" },
           { offset: -300, label: "【Go/No-Go ポーリング】 発射可否の最終確認" },
+          { offset: -240, label: "【Go for Launch】 発射管制最終承認" },
           { offset: -180, label: "自動シーケンス開始" },
-          { offset: -10,  label: "最終カウントダウン / 点火準備" },
           { offset: 0,    label: "リフトオフ / メインエンジン点火" },
-          { offset: 60,   label: "Max-Q (最大動圧点通過)" },
-          { offset: 150,  label: "MECO (メインエンジン停止)" },
-          { offset: 160,  label: "第1段分離 / 第2段エンジン点火" },
-          { offset: 200,  label: "フェアリング分離" },
-          { offset: 500,  label: "SECO (第2段エンジン停止 / 軌道投入)" }
+          { offset: 60,   label: "Max-Q 通過" }
         ]
       }
     };
 
-    // 初期モックデータ（API接続失敗時のフォールバックとしても利用）
     let mockLaunches = [
       { id: "1", name: "Falcon 9 / Starlink Group 8-9", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-02T08:15:00Z" },
-      { id: "2", name: "Electron / Dedicated Mission", provider: "Rocket Lab", rocket: "Electron", pad: "Launch Complex 1", net: "2026-10-05T22:00:00Z" },
-      { id: "3", name: "Starship Integrated Flight Test", provider: "SpaceX", rocket: "Starship", pad: "Starbase Texas", net: "2026-10-15T13:00:00Z" },
-      { id: "4", name: "H3 Launch Vehicle (Referred Payload)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-20T05:30:00Z" },
-      { id: "5", name: "PSLV-C60 Mission", provider: "ISRO", rocket: "PSLV-XL", pad: "Satish Dhawan Space Centre", net: "2026-10-25T04:00:00Z" },
-      { id: "6", name: "Soyuz MS-28", provider: "Roscosmos", rocket: "Soyuz 2.1a", pad: "Baikonur Cosmodrome", net: "2026-11-10T11:20:00Z" },
-      { id: "7", name: "Long March 8 / Commercial Payload", provider: "CNSA", rocket: "Chang Zheng 8", pad: "Wenchang Spacecraft Launch Site", net: "2026-11-28T06:00:00Z" },
-      { id: "8", name: "Nuri Flight 4", provider: "KARI", rocket: "Nuri (KSLV-II)", pad: "Naro Space Center", net: "2026-12-12T02:00:00Z" }
+      { id: "2", name: "Starship Integrated Flight Test", provider: "SpaceX", rocket: "Starship", pad: "Starbase Texas", net: "2026-10-15T13:00:00Z" },
+      { id: "3", name: "H3 Launch Vehicle (Flight 3)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-20T05:30:00Z" }
     ];
 
     mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
@@ -630,32 +573,21 @@
     let isSimMode = false;
     let simT = -10;
     let currentPreset = null;
-
-    let missionState = "RUNNING"; // "RUNNING" | "HOLD" | "SCRUBBED"
+    let missionState = "RUNNING";
     let heldSeconds = -10;
+    let liveTelemetryCache = null;
 
-    // --- Launch Dashboard API / 外部 API からのデータ同期関数 ---
     async function syncLaunchesFromAPI() {
       const btn = document.getElementById('apiSyncBtn');
       btn.textContent = "同期中...";
-      
       try {
-        // Launch Library 2 (LL2) API または Launch Dashboard API エンドポイントの例
         const response = await fetch('https://lldev.thespacedevs.com/2.2.0/launch/upcoming/?limit=10', {
           method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
+          headers: { 'Accept': 'application/json' }
         });
-
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`API Error: ${response.status}`);
         const data = await response.json();
-        
         if (data && data.results && data.results.length > 0) {
-          // APIレスポンスをアプリケーションのデータ構造にマッピング
           mockLaunches = data.results.map((item, index) => ({
             id: item.id || String(index + 1),
             name: item.name || "Unknown Mission",
@@ -664,7 +596,6 @@
             pad: item.pad?.name || "Launch Pad",
             net: item.net || new Date().toISOString()
           }));
-
           mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
           selectedIndex = 0;
           renderLaunchList();
@@ -674,28 +605,25 @@
           throw new Error("No launch data found.");
         }
       } catch (error) {
-        console.warn("API同期に失敗したため、フォールバックデータを使用します:", error);
+        console.warn("API同期に失敗したためフォールバックを使用:", error);
         btn.textContent = "同期失敗(オフライン)";
       }
+      setTimeout(() => { btn.textContent = "API同期"; }, 3000);
+    }
 
-      setTimeout(() => {
-        btn.textContent = "API同期";
-      }, 3000);
+    async function fetchLiveTelemetry(launchId) {
+      try {
+        liveTelemetryCache = null;
+      } catch (e) {
+        liveTelemetryCache = null;
+      }
     }
 
     function getSequencePreset(launch) {
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
-
-      if (text.includes("starship") || text.includes("super heavy")) return JSON.parse(JSON.stringify(sequencePresets.starship));
-      if (text.includes("falcon heavy")) return JSON.parse(JSON.stringify(sequencePresets.falconHeavy));
+      if (text.includes("starship")) return JSON.parse(JSON.stringify(sequencePresets.starship));
       if (text.includes("falcon")) return JSON.parse(JSON.stringify(sequencePresets.falcon9));
-      if (text.includes("jaxa") || text.includes("h3") || text.includes("h-iia") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
-      if (text.includes("electron") || text.includes("rocket lab")) return JSON.parse(JSON.stringify(sequencePresets.electron));
-      if (text.includes("isro") || text.includes("pslv") || text.includes("gslv") || text.includes("lvm3") || text.includes("sriharikota") || text.includes("satish dhawan")) return JSON.parse(JSON.stringify(sequencePresets.isro));
-      if (text.includes("cnsa") || text.includes("long march") || text.includes("cz-") || text.includes("chang zheng") || text.includes("wenchang") || text.includes("jiuquan") || text.includes("taiyuan") || text.includes("xichang")) return JSON.parse(JSON.stringify(sequencePresets.cnsa));
-      if (text.includes("kari") || text.includes("nuri") || text.includes("kslv") || text.includes("narospace")) return JSON.parse(JSON.stringify(sequencePresets.kari));
-      if (text.includes("roscosmos") || text.includes("soyuz") || text.includes("proton") || text.includes("angara") || text.includes("baikonur") || text.includes("vostochny") || text.includes("plesetsk")) return JSON.parse(JSON.stringify(sequencePresets.roscosmos));
-
+      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
       return JSON.parse(JSON.stringify(sequencePresets.default));
     }
 
@@ -705,13 +633,8 @@
       const h = String(Math.floor(abs / 3600)).padStart(2, '0');
       const m = String(Math.floor((abs % 3600) / 60)).padStart(2, '0');
       const s = String(Math.floor(abs % 60)).padStart(2, '0');
-      
       const prefix = currentPreset.prefix || "T";
-      if (isNegative) {
-        return `${prefix}- ${h}:${m}:${s}`;
-      } else {
-        return `${prefix}+ ${h}:${m}:${s}`;
-      }
+      return isNegative ? `${prefix}- ${h}:${m}:${s}` : `${prefix}+ ${h}:${m}:${s}`;
     }
 
     function formatDuration(seconds) {
@@ -719,21 +642,45 @@
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = seconds % 60;
-
       const mm = String(m).padStart(2, '0');
       const ss = String(s).padStart(2, '0');
+      return h > 0 ? `${String(h).padStart(2, '0')}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
 
-      if (h > 0) {
-        const hh = String(h).padStart(2, '0');
-        return `${hh}:${mm}:${ss}`;
+    function updateTelemetry(seconds) {
+      const velEl = document.getElementById('telemetryVelocity');
+      const altEl = document.getElementById('telemetryAltitude');
+
+      if (liveTelemetryCache && liveTelemetryCache.velocity !== undefined) {
+        velEl.textContent = liveTelemetryCache.velocity.toLocaleString() + " km/h";
+        altEl.textContent = liveTelemetryCache.altitude.toLocaleString() + " km";
+        return;
       }
-      return `${mm}:${ss}`;
+
+      if (seconds < 0 || missionState === "SCRUBBED") {
+        velEl.textContent = "0 km/h（推定）";
+        altEl.textContent = "0.0 km（推定）";
+        return;
+      }
+
+      let velocity = 0;
+      let altitude = 0;
+
+      if (seconds === 0) {
+        velocity = 150;
+        altitude = 0.05;
+      } else {
+        velocity = Math.min(28000, Math.floor(200 + Math.pow(seconds, 1.4) * 115));
+        altitude = Number(Math.min(400, Math.pow(seconds, 1.3) * 0.45).toFixed(1));
+      }
+
+      velEl.textContent = velocity.toLocaleString() + " km/h（推定）";
+      altEl.textContent = altitude.toLocaleString() + " km（推定）";
     }
 
     function renderTimeline(currentDiff) {
       const list = document.getElementById('timelineList');
       list.innerHTML = '';
-
       let currentEvent = "---";
       let nextEvent = "---";
       let nextEventRemainingSeconds = null;
@@ -742,7 +689,6 @@
       currentPreset.timeline.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'timeline-item';
-        
         if (currentDiff >= item.offset) {
           const nextItem = currentPreset.timeline[index + 1];
           if (!nextItem || currentDiff < nextItem.offset) {
@@ -754,15 +700,12 @@
               nextEventRemainingSeconds = nextItem.offset - currentDiff;
             } else {
               nextEvent = "全シーケンス完了";
-              nextEventRemainingSeconds = null;
             }
           } else {
             div.classList.add('passed');
           }
         }
-
-        const offsetStr = formatTime(item.offset);
-        div.innerHTML = `<span class="time-offset">${offsetStr}</span><span>${item.label}</span>`;
+        div.innerHTML = `<span class="time-offset">${formatTime(item.offset)}</span><span>${item.label}</span>`;
         list.appendChild(div);
       });
 
@@ -777,11 +720,7 @@
       document.getElementById('nextEventText').textContent = nextEvent;
 
       const cdEl = document.getElementById('nextEventCountdown');
-      if (nextEventRemainingSeconds !== null && nextEventRemainingSeconds > 0) {
-        cdEl.textContent = `(in ${formatDuration(nextEventRemainingSeconds)})`;
-      } else {
-        cdEl.textContent = "";
-      }
+      cdEl.textContent = (nextEventRemainingSeconds !== null && nextEventRemainingSeconds > 0) ? `(in ${formatDuration(nextEventRemainingSeconds)})` : "";
 
       if (activeElement) {
         activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -791,10 +730,7 @@
     function updateDisplay() {
       const launch = mockLaunches[selectedIndex];
       let diffSeconds = 0;
-
-      if (missionState === "SCRUBBED") {
-        diffSeconds = heldSeconds;
-      } else if (missionState === "HOLD") {
+      if (missionState === "SCRUBBED" || missionState === "HOLD") {
         diffSeconds = heldSeconds;
       } else {
         if (isSimMode) {
@@ -802,9 +738,7 @@
           simT++;
           heldSeconds = simT;
         } else {
-          const target = new Date(launch.net).getTime();
-          const now = Date.now();
-          diffSeconds = Math.floor((now - target) / 1000);
+          diffSeconds = Math.floor((Date.now() - new Date(launch.net).getTime()) / 1000);
           heldSeconds = diffSeconds;
         }
       }
@@ -828,7 +762,41 @@
       }
 
       document.getElementById('timerDisplay').textContent = formatTime(diffSeconds);
+      updateTelemetry(diffSeconds);
       renderTimeline(diffSeconds);
+    }
+
+    // ミッション名に含まれるカッコ「(」または「（」で自動的に綺麗に分割して改行させるヘルパー関数
+    function setMissionTitle(fullName) {
+      const titleContainer = document.getElementById('missionTitle');
+      titleContainer.innerHTML = '';
+
+      // 全角・半角の開きカッコの位置で分割
+      const bracketIndex = Math.min(
+        fullName.indexOf('(') !== -1 ? fullName.indexOf('(') : 9999,
+        fullName.indexOf('（') !== -1 ? fullName.indexOf('（') : 9999
+      );
+
+      if (bracketIndex !== 9999) {
+        const mainText = fullName.substring(0, bracketIndex).trim();
+        const subText = fullName.substring(bracketIndex).trim();
+
+        const mainSpan = document.createElement('span');
+        mainSpan.className = 'mission-main-text';
+        mainSpan.textContent = mainText;
+
+        const subSpan = document.createElement('span');
+        subSpan.className = 'mission-sub-text';
+        subSpan.textContent = subText;
+
+        titleContainer.appendChild(mainSpan);
+        titleContainer.appendChild(subSpan);
+      } else {
+        const mainSpan = document.createElement('span');
+        mainSpan.className = 'mission-main-text';
+        mainSpan.textContent = fullName;
+        titleContainer.appendChild(mainSpan);
+      }
     }
 
     function selectLaunch(index) {
@@ -842,19 +810,21 @@
       currentPreset = getSequencePreset(launch);
 
       document.querySelectorAll('.launch-item-btn').forEach((btn, i) => {
-        if (i === selectedIndex) {
-          btn.classList.add('selected');
-        } else {
-          btn.classList.remove('selected');
-        }
+        if (i === selectedIndex) btn.classList.add('selected');
+        else btn.classList.remove('selected');
       });
 
-      document.getElementById('missionTitle').textContent = launch.name;
+      // 改行制御を適用したタイトル設定関数を呼び出し
+      setMissionTitle(launch.name);
+
       document.getElementById('missionSub').textContent = `${launch.provider} • ${launch.rocket} • ${launch.pad}`;
       document.getElementById('targetTime').textContent = `Target NET: ${new Date(launch.net).toLocaleString()}`;
 
       simT = -10;
       if (timerInterval) clearInterval(timerInterval);
+      
+      fetchLiveTelemetry(launch.id);
+
       updateDisplay();
       timerInterval = setInterval(updateDisplay, 1000);
     }
@@ -862,14 +832,11 @@
     function renderLaunchList() {
       const listContainer = document.getElementById('launchListContainer');
       listContainer.innerHTML = '';
-      
       mockLaunches.forEach((l, i) => {
         const btn = document.createElement('button');
         btn.className = 'launch-item-btn';
         if (i === selectedIndex) btn.classList.add('selected');
-        
         const dateStr = new Date(l.net).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
         btn.innerHTML = `
           <div class="launch-item-provider">${l.provider}</div>
           <div class="launch-item-name">${l.name}</div>
@@ -880,70 +847,49 @@
       });
     }
 
-    // イベントリスナー設定
     document.getElementById('apiSyncBtn').addEventListener('click', syncLaunchesFromAPI);
-
     document.getElementById('simBtn').addEventListener('click', () => {
       isSimMode = !isSimMode;
       simT = -10;
       document.getElementById('simBtn').style.borderColor = isSimMode ? '#00f2ff' : 'rgba(0, 242, 255, 0.2)';
       updateDisplay();
     });
-
     document.getElementById('holdBtn').addEventListener('click', () => {
       if (missionState === "SCRUBBED") return;
-
       if (missionState === "HOLD") {
         missionState = "RUNNING";
         document.getElementById('holdBtn').textContent = "HOLD";
         document.getElementById('holdBtn').style.background = "rgba(255, 170, 0, 0.15)";
-        document.getElementById('holdBtn').style.borderColor = "#ffaa00";
       } else {
         missionState = "HOLD";
         document.getElementById('holdBtn').textContent = "RESUME";
         document.getElementById('holdBtn').style.background = "rgba(0, 255, 128, 0.15)";
-        document.getElementById('holdBtn').style.borderColor = "#00ff80";
       }
       updateDisplay();
     });
-
     document.getElementById('scrubBtn').addEventListener('click', () => {
       missionState = "SCRUBBED";
-      document.getElementById('holdBtn').textContent = "HOLD";
-      document.getElementById('holdBtn').style.background = "rgba(255, 170, 0, 0.15)";
-      document.getElementById('holdBtn').style.borderColor = "#ffaa00";
       updateDisplay();
     });
-
     document.getElementById('editBtn').addEventListener('click', () => {
-      const textLines = currentPreset.timeline.map(item => `${item.offset}, ${item.label}`).join('\n');
-      document.getElementById('jsonInput').value = textLines;
+      document.getElementById('jsonInput').value = currentPreset.timeline.map(item => `${item.offset}, ${item.label}`).join('\n');
       document.getElementById('editModal').classList.add('open');
     });
-
     document.getElementById('cancelEdit').addEventListener('click', () => {
       document.getElementById('editModal').classList.remove('open');
     });
-
     document.getElementById('saveEdit').addEventListener('click', () => {
-      const rawText = document.getElementById('jsonInput').value;
-      const lines = rawText.split('\n');
+      const lines = document.getElementById('jsonInput').value.split('\n');
       const newTimeline = [];
-
       lines.forEach(line => {
         const parts = line.split(',');
         if (parts.length >= 2) {
           const offset = parseInt(parts[0].trim(), 10);
           const label = parts.slice(1).join(',').trim();
-          if (!isNaN(offset) && label) {
-            newTimeline.offset = offset; // 修正
-            newTimeline.push({ offset, label });
-          }
+          if (!isNaN(offset) && label) newTimeline.push({ offset, label });
         }
       });
-
       newTimeline.sort((a, b) => a.offset - b.offset);
-
       if (newTimeline.length > 0) {
         currentPreset.timeline = newTimeline;
         document.getElementById('editModal').classList.remove('open');
@@ -953,7 +899,6 @@
       }
     });
 
-    // 初期化実行
     renderLaunchList();
     selectLaunch(0);
   </script>
