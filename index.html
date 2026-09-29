@@ -787,14 +787,16 @@
     function getSequencePreset(launch) {
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
       if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(sequencePresets.ariane5_6));
-      if (text.includes("pslv") || text.includes("polar")) return JSON.parse(JSON.stringify(sequencePresets.pslv));
+      if (text.includes("pslv")) return JSON.parse(JSON.stringify(sequencePresets.pslv));
+      if (text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.lvm3));
+      if (text.includes("sslv")) return JSON.parse(JSON.stringify(sequencePresets.sslv));
+      if (text.includes("gslv")) return JSON.parse(JSON.stringify(sequencePresets.gslv));
       if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(sequencePresets.astra));
       if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(sequencePresets.virginorbit));
       if (text.includes("starship")) return JSON.parse(JSON.stringify(sequencePresets.starship));
       if (text.includes("falcon")) return JSON.parse(JSON.stringify(sequencePresets.falcon9));
       if (text.includes("long march") || text.includes("長征") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(sequencePresets.longmarch));
       if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(sequencePresets.nuri));
-      if (text.includes("isro") || text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.isro));
       if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(sequencePresets.electron));
       if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
       if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(sequencePresets.sls));
