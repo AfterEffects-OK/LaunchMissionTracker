@@ -96,7 +96,6 @@
       box-shadow: 0 0 15px var(--accent-glow);
     }
 
-    /* 3カラムレイアウト設定 */
     .main-grid {
       display: grid;
       grid-template-columns: 320px 1fr 380px;
@@ -203,7 +202,6 @@
       padding: 20px 10px;
     }
 
-    /* ミッションタイトルのレイアウト・折り返し制御 */
     .mission-title {
       font-size: 1.8rem;
       margin-bottom: 8px;
@@ -233,14 +231,13 @@
     .timer {
       font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-variant-numeric: tabular-nums;
-      font-size: 3.5srem; /* 修正: 適切なサイズに */
-      font-size: clamp(2rem, 5vw, 3.5rem); /* スマホで縮小しつつ折り返し防止 */
+      font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: bold;
       color: #ffffff;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
       letter-spacing: 2px;
       margin: 15px 0;
-      white-space: nowrap; /* ★ここで強制的に改行を防ぐ */
+      white-space: nowrap;
     }
 
     .status-badge {
@@ -285,7 +282,6 @@
       color: var(--accent-blue);
     }
 
-    /* イベントステータス縦積みレイアウト */
     .event-status-stack {
       display: flex;
       flex-direction: column;
@@ -336,7 +332,6 @@
       color: var(--accent-blue);
     }
 
-    /* 右側タイムライン：エリア内専用スクロール */
     .timeline-container {
       flex: 1;
       overflow-y: auto;
@@ -431,17 +426,14 @@
     </header>
 
     <div class="main-grid">
-      <!-- 左側：打ち上げ一覧リスト -->
       <div class="card launch-list-card">
         <h3 style="color: var(--accent-blue);">打ち上げ一覧</h3>
         <div id="launchListContainer" class="launch-scroll-container"></div>
       </div>
 
-      <!-- 中央：カウントダウン表示 ＆ テレメトリ ＆ イベント -->
       <div class="card countdown-display">
         <div class="status-badge" id="presetBadge">PRESET</div>
         
-        <!-- ミッションタイトル（自動折り返し対応） -->
         <h2 class="mission-title" id="missionTitle">
           <span class="mission-main-text">ミッションを選択してください</span>
         </h2>
@@ -461,7 +453,6 @@
           </div>
         </div>
 
-        <!-- スタック（縦積み）イベント表示 -->
         <div class="event-status-stack">
           <div class="event-card current">
             <div class="event-header">
@@ -479,7 +470,6 @@
         </div>
       </div>
 
-      <!-- 右側：ミッション シーケンス -->
       <div class="card sequence-card">
         <h3 style="color: var(--accent-blue);">ミッション シーケンス</h3>
         <div class="timeline-container" id="timelineList"></div>
@@ -542,14 +532,134 @@
         timeline: [
           { offset: -1800, label: "ターミナルカウントダウン準備" },
           { offset: -480,  label: "【Go/No-Go コーリング】 発射管制長による最終確認" },
-          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
           { offset: -270,  label: "自動カウントダウンシーケンス開始" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
           { offset: -3,    label: "LE-9 メインエンジン点火" },
           { offset: 0,     label: "SRB-3 (固体ブースター) 点火 / 離昇 (Liftoff)" },
           { offset: 80,    label: "Max-Q 通過" },
           { offset: 116,   label: "SRB-3 分離" },
           { offset: 210,   label: "衛星フェアリング分離" },
           { offset: 296,   label: "MECO / 第1段・第2段分離" }
+        ]
+      },
+      ariane5_6: {
+        name: "ESA アリアン 5 / 6 (フランス/欧州)",
+        prefix: "H",
+        timeline: [
+          { offset: -1200, label: "クールクーラント供給および低温推進剤最終補充" },
+          { offset: -390,  label: "【Go/No-Go】 ギアナ宇宙センター発射管制確認" },
+          { offset: -300,  label: "自動発射シーケンス(SEQUENCE)開始" },
+          { offset: -7,    label: "バルカン / HM7B メインエンジン点火" },
+          { offset: 0,     label: "固体ブースター (P120C等) 点火・リフトオフ" },
+          { offset: 68,    label: "Max-Q (最大動圧点) 通過" },
+          { offset: 142,   label: "固体ブースター全基分離" },
+          { offset: 210,   label: "ペロードフェアリング投棄" },
+          { offset: 540,   label: "上段エンジン停止 (SECO) ・軌道投入完了" }
+        ]
+      },
+      pslv: {
+        name: "ISRO PSLV (インド極軌道打ち上げ)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン準備・機体各系最終点検" },
+          { offset: -300,  label: "【Go/No-Go】 サティシュ・ダワン宇宙センター確認" },
+          { offset: -60,   label: "自動ローンチシークエンス（ALS）へ移行" },
+          { offset: -2,    label: "第1段(S1)固体ロケットモーター点火前チェック" },
+          { offset: 0,     label: "第1段S1点火 ＆ 6基のストラップオンブースター(PSOM)点火・リフトオフ" },
+          { offset: 25,    label: "地上側・空中ブースター(4基)分離" },
+          { offset: 70,    label: "残る2基のエアブースター分離 ＆ Max-Q通過" },
+          { offset: 110,   label: "第1段バーンアウト ＆ 第2段(液体)エンジン点火・分離" },
+          { offset: 160,   label: "ペイロードフェアリング分離" }
+        ]
+      },
+      astra: {
+        name: "Astra ロケット 3 (民間ベンチャー)",
+        prefix: "T",
+        timeline: [
+          { offset: -600,  label: "自動タンク加圧および燃料(RP-1/LOX)充填完了" },
+          { offset: -120,  label: "最終「Go for Launch」システム自動認証" },
+          { offset: -10,   label: "発射管制コンピューター制御へ完全に移行" },
+          { offset: -3,    label: "Delphinエンジン 5基点火シーケンス" },
+          { offset: 0,     label: "リフトオフ (垂直上昇開始)" },
+          { offset: 35,    label: "Max-Q (最大動圧点) 通過" },
+          { offset: 175,   label: "MECO (第1段エンジン停止) ＆ 段間分離" },
+          { offset: 181,   label: "上段エンジン(Aether)点火" },
+          { offset: 200,   label: "フェアリング分離" }
+        ]
+      },
+      virginorbit: {
+        name: "Virgin Orbit LauncherOne (空中発射)",
+        prefix: "T",
+        timeline: [
+          { offset: -900,  label: "母機ボーイング747 (Cosmic Girl) 発射空域へ到達" },
+          { offset: -300,  label: "ミッションディレクターによる最終発射許可 (GO/NOGO)" },
+          { offset: -60,   label: "ランチャーワン内部バッテリー給電へ切替 ＆ 最終アーム" },
+          { offset: -10,   label: "投下前カウントダウン自動シーケンス" },
+          { offset: 0,     label: "ロケット投下 (Drop) ＆ 5秒後 第1段Newton三基点火" },
+          { offset: 30,    label: "Max-Q 通過" },
+          { offset: 185,   label: "第1段燃焼終了・分離 ＆ 第2段NewtonVac点火" },
+          { offset: 210,   label: "フェアリング分離" }
+        ]
+      },
+      isro: {
+        name: "ISRO LVM3 (インド大型)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
+          { offset: -120,  label: "自動ローンチシーケンス開始" },
+          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S200固体ブースター点火・リフトオフ (Liftoff)" },
+          { offset: 70,    label: "Max-Q 到達" },
+          { offset: 128,   label: "S200 固体ブースター分離" },
+          { offset: 215,   label: "ペロードフェアリング分離" },
+          { offset: 300,   label: "L110 コアエンジン停止・分離" }
+        ]
+      },
+      longmarch: {
+        name: "CNSA 長征5号 (中国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "極低温燃料(LOX/LH2)充填最終段階" },
+          { offset: -420,  label: "自動カウントダウンモード移行" },
+          { offset: -180,  label: "【Go/No-Go】 発射管制最終確認" },
+          { offset: -3,    label: "YF-77およびYF-100ブースター点火" },
+          { offset: 0,     label: "リフトオフ・文昌宇宙発射場離昇" },
+          { offset: 35,    label: "Max-Q 通過" },
+          { offset: 180,   label: "液体ブースター分離" },
+          { offset: 290,   label: "第1段エンジン停止・分離" },
+          { offset: 300,   label: "第2段点火・フェアリング分離" }
+        ]
+      },
+      nuri: {
+        name: "KARI ヌリ号 KSLV-II (韓国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "ナロ宇宙センター 最終点検" },
+          { offset: -300,  label: "【Go/No-Go】 発射管理委員会による最終発射許可" },
+          { offset: -10,   label: "自動ローンチシークエンス開始 (ALCS)" },
+          { offset: -3,    label: "75トン級液体エンジン プレファイヤー" },
+          { offset: 0,     label: "リフトオフ (Liftoff)" },
+          { offset: 50,    label: "Max-Q 通過" },
+          { offset: 127,   label: "第1段分離" },
+          { offset: 204,   label: "フェアリング分離" },
+          { offset: 425,   label: "第2段エンジン停止・軌道投入完了" }
+        ]
+      },
+      electron: {
+        name: "Rocket Lab エレクトロン (NZ / 米国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "RP-1 & 液体酸素 充填作業 (マヒア LC-1)" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制官確認" },
+          { offset: -120,  label: "自律飛行システム (FTS) アーミング" },
+          { offset: -2,    label: "ラザフォードエンジン 電動ポンプ駆動開始" },
+          { offset: 0,     label: "エンジン点火・リフトオフ" },
+          { offset: 80,    label: "Max-Q 通過" },
+          { offset: 155,   label: "MECO (第1段エンジン停止)" },
+          { offset: 159,   label: "第1段・第2段分離" },
+          { offset: 163,   label: "キウイエンジン(第2段)点火" },
+          { offset: 180,   label: "フェアリング分離" }
         ]
       },
       sls: {
@@ -570,97 +680,6 @@
           { offset: 540,    label: "コアステージ分離 / ICPS推進" }
         ]
       },
-      atlasv: {
-        name: "ULA Atlas V",
-        prefix: "T",
-        timeline: [
-          { offset: -1800, label: "カウントダウン体制完了・最終確認" },
-          { offset: -360,  label: "【Go/No-Go ポーリング】 発射管制確認" },
-          { offset: -120,  label: "自動シーケンス開始 (LCC自動制御)" },
-          { offset: -2.7,  label: "RD-180 メインエンジン点火" },
-          { offset: 0,     label: "固体ブースター(GEM)点火・リフトオフ" },
-          { offset: 53,    label: "Max-Q 通過" },
-          { offset: 90,    label: "固体ロケットブースター(SRB)全基分離" },
-          { offset: 212,   label: "ペロードフェアリング分離" },
-          { offset: 270,   label: "センタウール上段エンジン点火 (1回目)" }
-        ]
-      },
-      ariane: {
-        name: "ESA Ariane 5 / 6",
-        prefix: "H",
-        timeline: [
-          { offset: -900,  label: "最終カウントダウン準備・機体電源切替" },
-          { offset: -390,  label: "【Go/No-Go】 発射ディレクターおよび各局最終確認" },
-          { offset: -300,  label: "自動発射シーケンス開始" },
-          { offset: -7,    label: "バルカンメインエンジン点火" },
-          { offset: 0,     label: "固体ブースター点火・リフトオフ (Liftoff)" },
-          { offset: 65,    label: "Max-Q 通過" },
-          { offset: 140,   label: "固体ブースター(P120C等)分離" },
-          { offset: 200,   label: "フェアリング分離" },
-          { offset: 550,   label: "上段メインエンジン停止・軌道投入" }
-        ]
-      },
-      isro: {
-        name: "ISRO LVM3 (GSLV Mk III)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
-          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
-          { offset: -120,  label: "自動ローンチシーケンス開始" },
-          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
-          { offset: 0,     label: "S200固体ブースター点火・リフトオフ" },
-          { offset: 70,    label: "Max-Q 到達" },
-          { offset: 128,   label: "S200 固体ブースター分離" },
-          { offset: 215,   label: "ペロードフェアリング分離" },
-          { offset: 300,   label: "L110 コアエンジン停止・分離" }
-        ]
-      },
-      longmarch: {
-        name: "CNSA Long March 5",
-        prefix: "T",
-        timeline: [
-          { offset: -1800, label: "最終点検および燃料充填完了" },
-          { offset: -400,  label: "自動カウントダウン・システム移行" },
-          { offset: -180,  label: "【Go/No-Go】 発射管制最終チェック" },
-          { offset: -6,    label: "YF-77およびYF-75Dエンジン点火シーケンス" },
-          { offset: 0,     label: "ブースター・コアステージ同時点火・リフトオフ" },
-          { offset: 68,    label: "Max-Q 通過" },
-          { offset: 150,   label: "サイドブースター分離" },
-          { offset: 240,   label: "フェアリング分離" },
-          { offset: 480,   label: "第1段コアステージ分離" }
-        ]
-      },
-      electron: {
-        name: "Rocket Lab Electron",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "RP-1 & 液体酸素 充填作業" },
-          { offset: -300,  label: "【Go/No-Go】 発射管制官確認" },
-          { offset: -120,  label: "自律飛行システム (FTS) アーミング" },
-          { offset: -2,    label: "ラザフォードエンジン 電動ポンプ駆動開始" },
-          { offset: 0,     label: "エンジン点火・リフトオフ" },
-          { offset: 80,    label: "Max-Q 通過" },
-          { offset: 155,   label: "MECO (第1段エンジン停止)" },
-          { offset: 159,   label: "第1段・第2段分離" },
-          { offset: 163,   label: "キウイエンジン(第2段)点火" },
-          { offset: 180,   label: "フェアリング分離" }
-        ]
-      },
-      soyuz: {
-        name: "Roscosmos Soyuz",
-        prefix: "T",
-        timeline: [
-          { offset: -900,  label: "発射台サービスガントリー展開・最終点検" },
-          { offset: -300,  label: "【Go/No-Go】 発射委員会最終確認" },
-          { offset: -60,   label: "自動発射システム制御移行 (KZU)" },
-          { offset: -20,   label: "タンク加圧およびエンジンターボポンプ駆動" },
-          { offset: -5,    label: "メインエンジン予燃焼・フル推力到達" },
-          { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 118,   label: "サイドブースター (1段目) 分離" },
-          { offset: 157,   label: "コアステージ (2段目) 分離" },
-          { offset: 200,   label: "ペロードフェアリング分離" }
-        ]
-      },
       default: {
         name: "標準ロケット プリセット",
         prefix: "T",
@@ -676,16 +695,16 @@
     };
 
     let mockLaunches = [
-      { id: "1", name: "Falcon 9 / Starlink Group 8-9", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-02T08:15:00Z" },
-      { id: "2", name: "Starship Integrated Flight Test", provider: "SpaceX", rocket: "Starship", pad: "Starbase Texas", net: "2026-10-15T13:00:00Z" },
-      { id: "3", name: "H3 Launch Vehicle (Flight 3)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-20T05:30:00Z" },
-      { id: "4", name: "Artemis II (SLS Crewed Mission)", provider: "NASA", rocket: "SLS", pad: "Kennedy Space Center / LC-39B", net: "2026-11-05T18:00:00Z" },
-      { id: "5", name: "Atlas V / USSF-51 National Security", provider: "ULA", rocket: "Atlas V", pad: "Cape Canaveral / SLC-41", net: "2026-11-12T10:45:00Z" },
-      { id: "6", name: "Ariane 6 / Galileo Navigation Satellite", provider: "ESA", rocket: "Ariane", pad: "Kourou / ELA-4", net: "2026-11-20T21:10:00Z" },
-      { id: "7", name: "LVM3 / Chandrayaan Successor Mission", provider: "ISRO", rocket: "LVM3", pad: "Satish Dhawan / SLP", net: "2026-12-01T09:00:00Z" },
-      { id: "8", name: "Long March 5 / Deep Space Probe", provider: "CNSA", rocket: "Long March", pad: "Wenchang / LC-1", net: "2026-12-10T12:00:00Z" },
-      { id: "9", name: "Electron / Dedicated Commercial Launch", provider: "Rocket Lab", rocket: "Electron", pad: "Mahia / LC-1B", net: "2026-12-15T02:30:00Z" },
-      { id: "10", name: "Soyuz-2.1a / Progress MS Supply", provider: "Roscosmos", rocket: "Soyuz", pad: "Baikonur / Site 31", net: "2026-12-22T06:00:00Z" }
+      { id: "1", name: "Ariane 6 / Maiden Flight & Payloads", provider: "ESA / Arianespace", rocket: "Ariane", pad: "Kourou / ELA-4 (フランス領)", net: "2026-10-05T21:10:00Z" },
+      { id: "2", name: "PSLV-C / Earth Observation Satellite", provider: "ISRO", rocket: "PSLV", pad: "Satish Dhawan / FLP (インド)", net: "2026-10-10T04:30:00Z" },
+      { id: "3", name: "Falcon 9 / Starlink Group", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-15T08:15:00Z" },
+      { id: "4", name: "Astra Rocket 3 / Commercial Test", provider: "Astra Space", rocket: "Astra", pad: "Pacific Spaceport Complex (米国)", net: "2026-10-18T22:00:00Z" },
+      { id: "5", name: "Virgin Orbit LauncherOne / Dedicated", provider: "Virgin Orbit", rocket: "VirginOrbit", pad: "Mojave Air and Space Port (空中)", net: "2026-10-22T19:00:00Z" },
+      { id: "6", name: "H3 Launch Vehicle (Flight 4)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-25T05:30:00Z" },
+      { id: "7", name: "Nuri KSLV-II / Satellite Mission", provider: "KARI", rocket: "Nuri", pad: "Naro Space Center (韓国)", net: "2026-10-28T07:30:00Z" },
+      { id: "8", name: "Long March 5 / Deep Space Payload", provider: "CNSA", rocket: "Long March", pad: "Wenchang Space Launch Site (中国)", net: "2026-11-02T10:00:00Z" },
+      { id: "9", name: "LVM3 / Chandrayaan Mission", provider: "ISRO", rocket: "LVM3", pad: "Satish Dhawan / SLP (インド)", net: "2026-11-08T09:00:00Z" },
+      { id: "10", name: "Electron / Dedicated Commercial Launch", provider: "Rocket Lab", rocket: "Electron", pad: "Mahia / LC-1B (ニュージーランド)", net: "2026-11-15T02:30:00Z" }
     ];
 
     mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
@@ -735,16 +754,18 @@
 
     function getSequencePreset(launch) {
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
+      if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(sequencePresets.ariane5_6));
+      if (text.includes("pslv") || text.includes("polar")) return JSON.parse(JSON.stringify(sequencePresets.pslv));
+      if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(sequencePresets.astra));
+      if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(sequencePresets.virginorbit));
       if (text.includes("starship")) return JSON.parse(JSON.stringify(sequencePresets.starship));
       if (text.includes("falcon")) return JSON.parse(JSON.stringify(sequencePresets.falcon9));
+      if (text.includes("long march") || text.includes("長征") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(sequencePresets.longmarch));
+      if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(sequencePresets.nuri));
+      if (text.includes("isro") || text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.isro));
+      if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(sequencePresets.electron));
       if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
       if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(sequencePresets.sls));
-      if (text.includes("atlas") || text.includes("ula")) return JSON.parse(JSON.stringify(sequencePresets.atlasv));
-      if (text.includes("ariane") || text.includes("esa") || text.includes("kourou")) return JSON.parse(JSON.stringify(sequencePresets.ariane));
-      if (text.includes("isro") || text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.isro));
-      if (text.includes("long march") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(sequencePresets.longmarch));
-      if (text.includes("electron") || text.includes("rocket lab")) return JSON.parse(JSON.stringify(sequencePresets.electron));
-      if (text.includes("soyuz") || text.includes("roscosmos")) return JSON.parse(JSON.stringify(sequencePresets.soyuz));
       return JSON.parse(JSON.stringify(sequencePresets.default));
     }
 
@@ -843,7 +864,6 @@
       const cdEl = document.getElementById('nextEventCountdown');
       cdEl.textContent = (nextEventRemainingSeconds !== null && nextEventRemainingSeconds > 0) ? `(in ${formatDuration(nextEventRemainingSeconds)})` : "";
 
-      // 右側シーケンスコンテナ内だけを対象にした自動スクロール（ページ全体のスクロール位置は一切動かさない）
       if (activeElement && window.lastActiveElement !== activeElement) {
         window.lastActiveElement = activeElement;
         const container = document.getElementById('timelineList');
