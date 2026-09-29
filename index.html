@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launch Mission Tracker</title>
   
-  <!-- ファビコンの設定 -->
+  <!-- ファビコン設定 -->
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/AfterEffects-OK/LaunchMissionTracker/main/watermarked_img_6832602719000808661.png">
+
   <style>
     :root {
       --bg-dark: #0a0d14;
@@ -202,7 +203,7 @@
       padding: 20px 10px;
     }
 
-    /* ミッションタイトルのレイアウト制御 */
+    /* ミッションタイトルのレイアウト・折り返し制御 */
     .mission-title {
       font-size: 1.8rem;
       margin-bottom: 8px;
@@ -214,13 +215,13 @@
     }
 
     .mission-main-text {
-      white-space: nowrap; /* メインタイトルは途中で不自然に切れないようにする */
+      white-space: nowrap;
     }
 
     .mission-sub-text {
-      white-space: nowrap; /* カッコ内が途中でバラバラに改行されるのを防ぐ */
+      white-space: nowrap;
       color: var(--text-muted);
-      font-size: 1.4rem;  /* メインより少し控えめにする場合 */
+      font-size: 1.4rem;
     }
 
     .mission-sub {
@@ -282,7 +283,7 @@
       color: var(--accent-blue);
     }
 
-    /* イベントステータスを縦（スタック）表示に変更 */
+    /* イベントステータス縦積みレイアウト */
     .event-status-stack {
       display: flex;
       flex-direction: column;
@@ -333,14 +334,14 @@
       color: var(--accent-blue);
     }
 
-    /* 独立スクロールエリア */
+    /* 右側タイムライン：エリア内専用スクロール */
     .timeline-container {
       flex: 1;
       overflow-y: auto;
       padding-right: 10px;
-      padding-bottom: 60vh;
       margin-top: 15px;
       scroll-behavior: smooth;
+      max-height: calc(100vh - 210px);
     }
 
     .timeline-item {
@@ -438,7 +439,7 @@
       <div class="card countdown-display">
         <div class="status-badge" id="presetBadge">PRESET</div>
         
-        <!-- ミッションタイトル表示部分（折り返し制御） -->
+        <!-- ミッションタイトル（自動折り返し対応） -->
         <h2 class="mission-title" id="missionTitle">
           <span class="mission-main-text">ミッションを選択してください</span>
         </h2>
@@ -458,7 +459,7 @@
           </div>
         </div>
 
-        <!-- スタック（縦積み）表示用のラッパー -->
+        <!-- スタック（縦積み）イベント表示 -->
         <div class="event-status-stack">
           <div class="event-card current">
             <div class="event-header">
@@ -549,6 +550,115 @@
           { offset: 296,   label: "MECO / 第1段・第2段分離" }
         ]
       },
+      sls: {
+        name: "NASA SLS (Artemis)",
+        prefix: "T",
+        timeline: [
+          { offset: -14400, label: "コアステージ 極低温推進剤 充填開始" },
+          { offset: -3600,  label: "最終発射前点検 (Terminal Countdown 開始)" },
+          { offset: -900,   label: "【Go/No-Go ポーリング】 ミッションマネジメントチーム確認" },
+          { offset: -600,   label: "発射管制 最終GO" },
+          { offset: -30,    label: "ロケット自動シークエンス移行" },
+          { offset: -6,     label: "RS-25 メインエンジン3基 点火" },
+          { offset: 0,      label: "SRB (固体ロケットブースター) 点火・リフトオフ" },
+          { offset: 70,     label: "Max-Q 通過" },
+          { offset: 126,    label: "SRB 分離" },
+          { offset: 140,    label: "ローンチアボートシステム (LAS) 排出" },
+          { offset: 500,    label: "コアステージ本燃焼終了・メインエンジン停止" },
+          { offset: 540,    label: "コアステージ分離 / ICPS推進" }
+        ]
+      },
+      atlasv: {
+        name: "ULA Atlas V",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "カウントダウン体制完了・最終確認" },
+          { offset: -360,  label: "【Go/No-Go ポーリング】 発射管制確認" },
+          { offset: -120,  label: "自動シーケンス開始 (LCC自動制御)" },
+          { offset: -2.7,  label: "RD-180 メインエンジン点火" },
+          { offset: 0,     label: "固体ブースター(GEM)点火・リフトオフ" },
+          { offset: 53,    label: "Max-Q 通過" },
+          { offset: 90,    label: "固体ロケットブースター(SRB)全基分離" },
+          { offset: 212,   label: "ペロードフェアリング分離" },
+          { offset: 270,   label: "センタウール上段エンジン点火 (1回目)" }
+        ]
+      },
+      ariane: {
+        name: "ESA Ariane 5 / 6",
+        prefix: "H",
+        timeline: [
+          { offset: -900,  label: "最終カウントダウン準備・機体電源切替" },
+          { offset: -390,  label: "【Go/No-Go】 発射ディレクターおよび各局最終確認" },
+          { offset: -300,  label: "自動発射シーケンス開始" },
+          { offset: -7,    label: "バルカンメインエンジン点火" },
+          { offset: 0,     label: "固体ブースター点火・リフトオフ (Liftoff)" },
+          { offset: 65,    label: "Max-Q 通過" },
+          { offset: 140,   label: "固体ブースター(P120C等)分離" },
+          { offset: 200,   label: "フェアリング分離" },
+          { offset: 550,   label: "上段メインエンジン停止・軌道投入" }
+        ]
+      },
+      isro: {
+        name: "ISRO LVM3 (GSLV Mk III)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
+          { offset: -120,  label: "自動ローンチシーケンス開始" },
+          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S200固体ブースター点火・リフトオフ" },
+          { offset: 70,    label: "Max-Q 到達" },
+          { offset: 128,   label: "S200 固体ブースター分離" },
+          { offset: 215,   label: "ペロードフェアリング分離" },
+          { offset: 300,   label: "L110 コアエンジン停止・分離" }
+        ]
+      },
+      longmarch: {
+        name: "CNSA Long March 5",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "最終点検および燃料充填完了" },
+          { offset: -400,  label: "自動カウントダウン・システム移行" },
+          { offset: -180,  label: "【Go/No-Go】 発射管制最終チェック" },
+          { offset: -6,    label: "YF-77およびYF-75Dエンジン点火シーケンス" },
+          { offset: 0,     label: "ブースター・コアステージ同時点火・リフトオフ" },
+          { offset: 68,    label: "Max-Q 通過" },
+          { offset: 150,   label: "サイドブースター分離" },
+          { offset: 240,   label: "フェアリング分離" },
+          { offset: 480,   label: "第1段コアステージ分離" }
+        ]
+      },
+      electron: {
+        name: "Rocket Lab Electron",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "RP-1 & 液体酸素 充填作業" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制官確認" },
+          { offset: -120,  label: "自律飛行システム (FTS) アーミング" },
+          { offset: -2,    label: "ラザフォードエンジン 電動ポンプ駆動開始" },
+          { offset: 0,     label: "エンジン点火・リフトオフ" },
+          { offset: 80,    label: "Max-Q 通過" },
+          { offset: 155,   label: "MECO (第1段エンジン停止)" },
+          { offset: 159,   label: "第1段・第2段分離" },
+          { offset: 163,   label: "キウイエンジン(第2段)点火" },
+          { offset: 180,   label: "フェアリング分離" }
+        ]
+      },
+      soyuz: {
+        name: "Roscosmos Soyuz",
+        prefix: "T",
+        timeline: [
+          { offset: -900,  label: "発射台サービスガントリー展開・最終点検" },
+          { offset: -300,  label: "【Go/No-Go】 発射委員会最終確認" },
+          { offset: -60,   label: "自動発射システム制御移行 (KZU)" },
+          { offset: -20,   label: "タンク加圧およびエンジンターボポンプ駆動" },
+          { offset: -5,    label: "メインエンジン予燃焼・フル推力到達" },
+          { offset: 0,     label: "リフトオフ (Liftoff)" },
+          { offset: 118,   label: "サイドブースター (1段目) 分離" },
+          { offset: 157,   label: "コアステージ (2段目) 分離" },
+          { offset: 200,   label: "ペロードフェアリング分離" }
+        ]
+      },
       default: {
         name: "標準ロケット プリセット",
         prefix: "T",
@@ -566,7 +676,14 @@
     let mockLaunches = [
       { id: "1", name: "Falcon 9 / Starlink Group 8-9", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-02T08:15:00Z" },
       { id: "2", name: "Starship Integrated Flight Test", provider: "SpaceX", rocket: "Starship", pad: "Starbase Texas", net: "2026-10-15T13:00:00Z" },
-      { id: "3", name: "H3 Launch Vehicle (Flight 3)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-20T05:30:00Z" }
+      { id: "3", name: "H3 Launch Vehicle (Flight 3)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-20T05:30:00Z" },
+      { id: "4", name: "Artemis II (SLS Crewed Mission)", provider: "NASA", rocket: "SLS", pad: "Kennedy Space Center / LC-39B", net: "2026-11-05T18:00:00Z" },
+      { id: "5", name: "Atlas V / USSF-51 National Security", provider: "ULA", rocket: "Atlas V", pad: "Cape Canaveral / SLC-41", net: "2026-11-12T10:45:00Z" },
+      { id: "6", name: "Ariane 6 / Galileo Navigation Satellite", provider: "ESA", rocket: "Ariane", pad: "Kourou / ELA-4", net: "2026-11-20T21:10:00Z" },
+      { id: "7", name: "LVM3 / Chandrayaan Successor Mission", provider: "ISRO", rocket: "LVM3", pad: "Satish Dhawan / SLP", net: "2026-12-01T09:00:00Z" },
+      { id: "8", name: "Long March 5 / Deep Space Probe", provider: "CNSA", rocket: "Long March", pad: "Wenchang / LC-1", net: "2026-12-10T12:00:00Z" },
+      { id: "9", name: "Electron / Dedicated Commercial Launch", provider: "Rocket Lab", rocket: "Electron", pad: "Mahia / LC-1B", net: "2026-12-15T02:30:00Z" },
+      { id: "10", name: "Soyuz-2.1a / Progress MS Supply", provider: "Roscosmos", rocket: "Soyuz", pad: "Baikonur / Site 31", net: "2026-12-22T06:00:00Z" }
     ];
 
     mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
@@ -614,19 +731,18 @@
       setTimeout(() => { btn.textContent = "API同期"; }, 3000);
     }
 
-    async function fetchLiveTelemetry(launchId) {
-      try {
-        liveTelemetryCache = null;
-      } catch (e) {
-        liveTelemetryCache = null;
-      }
-    }
-
     function getSequencePreset(launch) {
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
       if (text.includes("starship")) return JSON.parse(JSON.stringify(sequencePresets.starship));
       if (text.includes("falcon")) return JSON.parse(JSON.stringify(sequencePresets.falcon9));
       if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
+      if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(sequencePresets.sls));
+      if (text.includes("atlas") || text.includes("ula")) return JSON.parse(JSON.stringify(sequencePresets.atlasv));
+      if (text.includes("ariane") || text.includes("esa") || text.includes("kourou")) return JSON.parse(JSON.stringify(sequencePresets.ariane));
+      if (text.includes("isro") || text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.isro));
+      if (text.includes("long march") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(sequencePresets.longmarch));
+      if (text.includes("electron") || text.includes("rocket lab")) return JSON.parse(JSON.stringify(sequencePresets.electron));
+      if (text.includes("soyuz") || text.includes("roscosmos")) return JSON.parse(JSON.stringify(sequencePresets.soyuz));
       return JSON.parse(JSON.stringify(sequencePresets.default));
     }
 
@@ -725,8 +841,13 @@
       const cdEl = document.getElementById('nextEventCountdown');
       cdEl.textContent = (nextEventRemainingSeconds !== null && nextEventRemainingSeconds > 0) ? `(in ${formatDuration(nextEventRemainingSeconds)})` : "";
 
-      if (activeElement) {
-        activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // 右側シーケンスコンテナ内だけを対象にした自動スクロール（ページ全体のスクロール位置は一切動かさない）
+      if (activeElement && window.lastActiveElement !== activeElement) {
+        window.lastActiveElement = activeElement;
+        const container = document.getElementById('timelineList');
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = activeElement.getBoundingClientRect();
+        container.scrollTop += (elementRect.top - containerRect.top) - (containerRect.height / 2) + (elementRect.height / 2);
       }
     }
 
@@ -769,12 +890,10 @@
       renderTimeline(diffSeconds);
     }
 
-    // ミッション名に含まれるカッコ「(」または「（」で自動的に綺麗に分割して改行させるヘルパー関数
     function setMissionTitle(fullName) {
       const titleContainer = document.getElementById('missionTitle');
       titleContainer.innerHTML = '';
 
-      // 全角・半角の開きカッコの位置で分割
       const bracketIndex = Math.min(
         fullName.indexOf('(') !== -1 ? fullName.indexOf('(') : 9999,
         fullName.indexOf('（') !== -1 ? fullName.indexOf('（') : 9999
@@ -817,7 +936,6 @@
         else btn.classList.remove('selected');
       });
 
-      // 改行制御を適用したタイトル設定関数を呼び出し
       setMissionTitle(launch.name);
 
       document.getElementById('missionSub').textContent = `${launch.provider} • ${launch.rocket} • ${launch.pad}`;
@@ -826,8 +944,6 @@
       simT = -10;
       if (timerInterval) clearInterval(timerInterval);
       
-      fetchLiveTelemetry(launch.id);
-
       updateDisplay();
       timerInterval = setInterval(updateDisplay, 1000);
     }
