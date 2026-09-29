@@ -233,12 +233,14 @@
     .timer {
       font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-variant-numeric: tabular-nums;
-      font-size: 3.5rem;
+      font-size: 3.5srem; /* 修正: 適切なサイズに */
+      font-size: clamp(2rem, 5vw, 3.5rem); /* スマホで縮小しつつ折り返し防止 */
       font-weight: bold;
       color: #ffffff;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-      letter-spacing: 4px;
+      letter-spacing: 2px;
       margin: 15px 0;
+      white-space: nowrap; /* ★ここで強制的に改行を防ぐ */
     }
 
     .status-badge {
