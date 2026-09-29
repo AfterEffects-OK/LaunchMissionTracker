@@ -565,11 +565,58 @@
           { offset: -300,  label: "【Go/No-Go】 サティシュ・ダワン宇宙センター確認" },
           { offset: -60,   label: "自動ローンチシークエンス（ALS）へ移行" },
           { offset: -2,    label: "第1段(S1)固体ロケットモーター点火前チェック" },
-          { offset: 0,     label: "第1段S1点火 ＆ 6基のストラップオンブースター(PSOM)点火・リフトオフ" },
-          { offset: 25,    label: "地上側・空中ブースター(4基)分離" },
-          { offset: 70,    label: "残る2基のエアブースター分離 ＆ Max-Q通過" },
-          { offset: 110,   label: "第1段バーンアウト ＆ 第2段(液体)エンジン点火・分離" },
-          { offset: 160,   label: "ペイロードフェアリング分離" }
+          { offset: 0,     label: "第1段S1点火 ＆ 6基のストラップオンブースター点火・リフトオフ" },
+          { offset: 25,    label: "地上側ブースター分離" },
+          { offset: 70,    label: "空中ブースター分離 ＆ Max-Q通過" },
+          { offset: 110,   label: "第1段バーンアウト ＆ 第2段液体エンジン点火・分離" },
+          { offset: 160,   label: "ペイロードフェアリング分離" },
+          { offset: 300,   label: "第2段燃焼終了・第3段(固体)点火" }
+        ]
+      },
+      lvm3: {
+        name: "ISRO LVM3 (インド大型主力)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
+          { offset: -120,  label: "自動ローンチシーケンス開始" },
+          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S200固体ブースター点火・リフトオフ (Liftoff)" },
+          { offset: 70,    label: "Max-Q 到達" },
+          { offset: 128,   label: "S200 固体ブースター分離" },
+          { offset: 215,   label: "ペロードフェアリング分離" },
+          { offset: 300,   label: "L110 コアエンジン停止・分離" },
+          { offset: 310,   label: "C25 上段クライオジェニックエンジン点火" }
+        ]
+      },
+      sslv: {
+        name: "ISRO SSLV (インド小型衛星打ち上げ)",
+        prefix: "T",
+        timeline: [
+          { offset: -600,  label: "自律点検システムによる機体ヘルスチェック" },
+          { offset: -180,  label: "【Go/No-Go】 最終発射判断" },
+          { offset: -10,   label: "自動ローンチ・コントロール開始" },
+          { offset: 0,     label: "第1段(SS1)固体モーター点火・リフトオフ" },
+          { offset: 60,    label: "Max-Q 通過" },
+          { offset: 120,   label: "第1段分離 ＆ 第2段(SS2)点火" },
+          { offset: 200,   label: "ペイロードフェアリング分離" },
+          { offset: 280,   label: "第2段分離 ＆ 第3段(SS3)点火" },
+          { offset: 450,   label: "ベロシティ・トリミング・モジュール(VTM)展開" }
+        ]
+      },
+      gslv: {
+        name: "ISRO GSLV (インド静止衛星型)",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "極低温燃料・液体推進剤充填完了" },
+          { offset: -360,  label: "【Go/No-Go】 ミッション管制最終ポーリング" },
+          { offset: -60,   label: "自動打ち上げ制御シーケンスへ移行" },
+          { offset: -4.8,  label: "コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S125固体ブースター4基点火・リフトオフ" },
+          { offset: 75,    label: "Max-Q 通過" },
+          { offset: 100,   label: "固体ブースター4基一斉分離" },
+          { offset: 270,   label: "大型フェアリング分離" },
+          { offset: 300,   label: "コアステージ分離 ＆ 上段クライオジェニック点火" }
         ]
       },
       astra: {
@@ -599,21 +646,6 @@
           { offset: 30,    label: "Max-Q 通過" },
           { offset: 185,   label: "第1段燃焼終了・分離 ＆ 第2段NewtonVac点火" },
           { offset: 210,   label: "フェアリング分離" }
-        ]
-      },
-      isro: {
-        name: "ISRO LVM3 (インド大型)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
-          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
-          { offset: -120,  label: "自動ローンチシーケンス開始" },
-          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
-          { offset: 0,     label: "S200固体ブースター点火・リフトオフ (Liftoff)" },
-          { offset: 70,    label: "Max-Q 到達" },
-          { offset: 128,   label: "S200 固体ブースター分離" },
-          { offset: 215,   label: "ペロードフェアリング分離" },
-          { offset: 300,   label: "L110 コアエンジン停止・分離" }
         ]
       },
       longmarch: {
