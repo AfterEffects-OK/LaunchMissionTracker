@@ -437,6 +437,26 @@
       margin: 15px 0;
       resize: vertical;
     }
+
+    .editor-nav-btn {
+      background: rgba(0, 242, 255, 0.15);
+      border: 1px solid rgba(0, 242, 255, 0.2);
+      color: #00f2ff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    
+    .editor-nav-btn:hover {
+      background: #00f2ff;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -444,6 +464,7 @@
     <header>
       <h1>Launch Mission Tracker</h1>
       <div class="controls">
+        <a href="./editor" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
         <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
         <button id="simBtn">シミュレーション切替</button>
         <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
