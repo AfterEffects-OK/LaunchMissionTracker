@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Mission Tracker - プリセットエディター</title>
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --card-bg: rgba(16, 22, 36, 0.85);
+      --accent-blue: #00f2ff;
+      --accent-glow: rgba(0, 242, 255, 0.3);
+      --text-main: #f0f4f8;
+      --text-muted: #8a99ad;
+      --border-color: rgba(0, 242, 255, 0.2);
+      --danger: #ff4444;
+      --success: #00ff80;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, input, select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button {
+      background: rgba(0, 242, 255, 0.15);
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: var(--accent-blue);
+      color: #000;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .btn-danger {
+      background: rgba(255, 68, 68, 0.15);
+      border-color: var(--danger);
+      color: #ff8888;
+    }
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+    }
+
+    .btn-success {
+      background: rgba(0, 255, 128, 0.15);
+      border-color: var(--success);
+      color: --success;
+      color: #00ff80;
+    }
+    .btn-success:hover {
+      background: var(--success);
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 255, 128, 0.4);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .preset-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+      margin-top: 15px;
+      padding-right: 5px;
+    }
+
+    .preset-item {
+      width: 100%;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      padding: 12px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preset-item:hover {
+      background: rgba(0, 242, 255, 0.1);
+      border-color: var(--accent-blue);
+    }
+
+    .preset-item.active {
+      background: rgba(0, 242, 255, 0.2);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .preset-key {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    .editor-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 15px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 6px;
+      color: var(--text-main);
+    }
+
+    .timeline-editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .timeline-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 50px;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 変更点：高さを十分に確保し、右下で自由に拡大縮小できるように変更 */
+    .json-output-area {
+      width: 100%;
+      height: 420px;
+      background: #05070a;
+      border: 1px solid var(--border-color);
+      color: var(--accent-blue);
+      font-family: monospace;
+      padding: 12px;
+      border-radius: 6px;
+      resize: vertical;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      background: transparent;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sequence Presets Editor</h1>
+      <div class="header-actions">
+        <button class="btn-success" id="exportBtn">📥 sequence.js を出力</button>
+        <button id="importBtn">📤 JSONインポート</button>
+        <input type="file" id="importFile" style="display: none;" accept=".js,.json">
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <!-- 左側：プリセット一覧 -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="color: var(--accent-blue);">プリセット一覧</h3>
+          <button class="btn-success" id="addPresetBtn" style="padding: 4px 10px; font-size: 0.8rem;">＋ 新規追加</button>
+        </div>
+        <div id="presetList" class="preset-list-container"></div>
+      </div>
+
+      <!-- 右側：選択中プリセットの編集フォーム -->
+      <div class="card editor-pane" id="editorPane" style="display: none;">
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="visual">ビジュアルエディター</button>
+          <button class="tab-btn" data-tab="json">コード確認 (JSON)</button>
+        </div>
+
+        <!-- ビジュアルタブ -->
+        <div id="tabVisual" class="tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="editingPresetTitle" style="color: var(--accent-blue);">プリセット編集</h3>
+            <button class="btn-danger" id="deletePresetBtn">このプリセットを削除</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="form-group">
+              <label>識別キー (半角英数 / getSequencePreset内で判定用)</label>
+              <input type="text" id="inputKey" placeholder="例: falcon9">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>ミッション名 (表示用)</label>
+                <input type="text" id="inputName" placeholder="例: SpaceX Falcon 9">
+              </div>
+              <div class="form-group">
+                <label>接頭辞 (Prefix)</label>
+                <input type="text" id="inputPrefix" placeholder="T または H など">
+              </div>
+            </div>
+
+            <div class="timeline-editor-header">
+              <label>タイムライン シーケンス一覧 (オフセット秒数順)</label>
+              <button class="btn-success" id="addRowBtn" style="padding: 4px 10px; font-size: 0.8rem;">＋ イベント追加</button>
+            </div>
+
+            <div id="timelineRowsContainer" class="timeline-rows"></div>
+          </div>
+        </div>
+
+        <!-- JSONタブ -->
+        <div id="tabJson" class="tab-content" style="display: none;">
+          <label>現在のプリセットのJSONデータ</label>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">直接編集して反映することも可能です（右下をドラッグして枠を広げることもできます）。</p>
+          <textarea id="jsonTextArea" class="json-output-area"></textarea>
+          <button class="btn-success" id="applyJsonBtn" style="margin-top: 10px;">JSONを適用する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let sequencePresets = {
+      crew13: {
+        name: "SpaceX Crew ミッション (クルードラゴン)",
+        prefix: "T",
+        timeline: [
+          { offset: -2700, label: "推進剤ローディングのGO判断 (Propellant Load GO)" },
+          { offset: -2520, label: "クルーアクセスアーム格納 (Crew Access Arm Retracts)" },
+          { offset: -2340, label: "ドラゴン宇宙船の脱出システム作動準備完了 (LAS Armed)" },
+          { offset: -2100, label: "RP-1 燃料充填開始 (RP-1 Loading Begins)" },
+          { offset: -2100, label: "第1段 液体酸素(LOX)充填開始 (1st Stage LOX Begins)" },
+          { offset: -960,  label: "第2段 液体酸素(LOX)充填開始 (2nd Stage LOX Begins)" },
+          { offset: -420,  label: "ファルコン9 エンジン冷却開始 (Engine Chill)" },
+          { offset: -300,  label: "ドラゴン宇宙船が内部電源へ移行 (Internal Power)" },
+          { offset: -60,   label: "フライトコンピュータ最終事前チェック開始 (Prelaunch Checks)" },
+          { offset: -60,   label: "推進剤タンクの加圧開始 (Tank Pressurization Begins)" },
+          { offset: -45,   label: "打ち上げのGO判断 (Launch Director GO)" },
+          { offset: -3,    label: "エンジン点火シーケンス開始 (Ignition Sequence)" },
+          { offset: 0,     label: "リフトオフ / 打ち上げ (Liftoff)" },
+          { offset: 72,    label: "Max Q (最大動圧点通過)" },
+          { offset: 144,   label: "第1段メインエンジン停止 (MECO)" },
+          { offset: 147,   label: "第1段・第2段分離 (Stage Separation)" },
+          { offset: 151,   label: "第1段機体反転 (Stage 1 Flip)" },
+          { offset: 155,   label: "第2段エンジン点火 (SES-1)" },
+          { offset: 161,   label: "ブーストバック燃焼開始 (Boostback Burn Begins)" },
+          { offset: 207,   label: "ブーストバック燃焼終了 (Boostback Burn Ends)" },
+          { offset: 380,   label: "第1段大気圏再突入バーン開始 (Entry Burn Begins)" },
+          { offset: 392,   label: "第1段大気圏再突入バーン終了 (Entry Burn Ends)" },
+          { offset: 444,   label: "第1段着陸バーン開始 (Landing Burn Begins)" },
+          { offset: 461,   label: "第1段着陸 (Stage 1 Landing)" },
+          { offset: 527,   label: "第2段エンジン停止 (SECO-1 / 軌道投入)" },
+          { offset: 579,   label: "ドラゴン宇宙船分離 (Dragon Separation)" },
+          { offset: 625,   label: "ノーズコーン開放シーケンス開始 (Nosecone Open)" }
+        ]
+      },
+      transporter18: {
+        name: "SpaceX Transporter-18 Mission",
+        prefix: "T",
+        timeline: [
+          { offset: -2280, label: "推進剤ローディングのGO判断 (Propellant Load GO)" },
+          { offset: -2100, label: "RP-1 燃料充填開始 (RP-1 Loading)" },
+          { offset: -2100, label: "第1段 液体酸素(LOX)充填開始 (1st Stage LOX)" },
+          { offset: -960,  label: "第2段 液体酸素(LOX)充填開始 (2nd Stage LOX)" },
+          { offset: -420,  label: "ファルコン9 エンジン冷却開始 (Engine Chill)" },
+          { offset: -60,   label: "フライトコンピュータ最終事前チェック開始" },
+          { offset: -60,   label: "推進剤タンク加圧開始 (Tank Pressurization)" },
+          { offset: -45,   label: "打ち上げのGO判断 (Launch Director GO)" },
+          { offset: -3,    label: "エンジン点火シーケンス開始 (Ignition)" },
+          { offset: 0,     label: "ファルコン9 リフトオフ (Liftoff)" },
+          { offset: 65,    label: "Max Q (最大動圧点通過)" },
+          { offset: 135,   label: "第1段メインエンジン停止 (MECO)" },
+          { offset: 138,   label: "第1段・第2段分離 (Stage Separation)" },
+          { offset: 146,   label: "第2段エンジン点火 (SES-1)" },
+          { offset: 151,   label: "ブーストバック燃焼開始 (Boostback Burn)" },
+          { offset: 175,   label: "フェアリング分離 (Fairing Separation)" },
+          { offset: 205,   label: "ブーストバック燃焼終了" },
+          { offset: 364,   label: "第1段大気圏再突入バーン開始 (Entry Burn)" },
+          { offset: 373,   label: "第1段大気圏再突入バーン終了" },
+          { offset: 428,   label: "第1段着陸バーン開始 (Landing Burn)" },
+          { offset: 445,   label: "第1段着陸完了 (Landing / LZ-4)" },
+          { offset: 506,   label: "第2段エンジン停止 (SECO-1)" }
+        ]
+      },
+      falcon9: {
+        name: "SpaceX Falcon 9",
+        prefix: "T",
+        timeline: [
+          { offset: -2100, label: "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
+          { offset: -420,  label: "Falcon 9 エンジン冷却 (Engine Chill)" },
+          { offset: -3,    label: "エンジン点火シーケンス開始" },
+          { offset: 0,     label: "リフトオフ (Liftoff)" },
+          { offset: 72,    label: "Max-Q (最大動圧点通過)" },
+          { offset: 147,   label: "MECO (第1段メインエンジン停止)" },
+          { offset: 151,   label: "第1段 / 第2段 分離" }
+        ]
+      },
+      default: {
+        name: "標準ロケット プリセット",
+        prefix: "T",
+        timeline: [
+          { offset: -900, label: "ターミナルカウントダウン開始" },
+          { offset: -300, label: "【Go/No-Go ポーリング】 発射可否の最終確認" },
+          { offset: 0,    label: "リフトオフ / メインエンジン点火" },
+          { offset: 60,   label: "Max-Q 通過" }
+        ]
+      }
+    };
+
+    let currentSelectedKey = null;
+
+    function renderPresetList() {
+      const container = document.getElementById('presetList');
+      container.innerHTML = '';
+      
+      Object.keys(sequencePresets).forEach(key => {
+        const preset = sequencePresets[key];
+        const btn = document.createElement('button');
+        btn.className = `preset-item ${key === currentSelectedKey ? 'active' : ''}`;
+        btn.innerHTML = `
+          <div>
+            <div style="font-weight: bold; font-size: 0.95rem;">${preset.name}</div>
+            <div class="preset-key">${key} (${preset.timeline.length} events)</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => selectPreset(key));
+        container.appendChild(btn);
+      });
+    }
+
+    function selectPreset(key) {
+      currentSelectedKey = key;
+      const preset = sequencePresets[key];
+      
+      document.getElementById('editorPane').style.display = 'flex';
+      document.getElementById('inputKey').value = key;
+      document.getElementById('inputName').value = preset.name;
+      document.getElementById('inputPrefix').value = preset.prefix;
+      
+      renderTimelineRows();
+      updateJsonView();
+      renderPresetList();
+    }
+
+    function renderTimelineRows() {
+      const container = document.getElementById('timelineRowsContainer');
+      container.innerHTML = '';
+      const preset = sequencePresets[currentSelectedKey];
+
+      preset.timeline.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'timeline-row';
+        row.innerHTML = `
+          <input type="number" value="${item.offset}" data-index="${index}" class="timeline-offset" title="オフセット秒数" style="background:#000; border:1px solid var(--border-color); color:var(--accent-blue); padding:6px; border-radius:4px; text-align:center; font-family:monospace;">
+          <input type="text" value="${item.label}" data-index="${index}" class="timeline-label" title="イベント名" style="background:#000; border:1px solid var(--border-color); color:var(--text-main); padding:6px; border-radius:4px;">
+          <button class="btn-danger delete-row-btn" data-index="${index}" style="padding: 6px; font-size: 0.8rem;">✕</button>
+        `;
+        container.appendChild(row);
+      });
+
+      container.querySelectorAll('.timeline-offset').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          preset.timeline[idx].offset = parseInt(e.target.value) || 0;
+          preset.timeline.sort((a, b) => a.offset - b.offset);
+          renderTimelineRows();
+          updateJsonView();
+        });
+      });
+
+      container.querySelectorAll('.timeline-label').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          preset.timeline[idx].label = e.target.value;
+          updateJsonView();
+        });
+      });
+
+      container.querySelectorAll('.delete-row-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          preset.timeline.splice(idx, 1);
+          renderTimelineRows();
+          updateJsonView();
+        });
+      });
+    }
+
+    function updateJsonView() {
+      const preset = sequencePresets[currentSelectedKey];
+      document.getElementById('jsonTextArea').value = JSON.stringify(preset, null, 2);
+    }
+
+    document.getElementById('inputKey').addEventListener('input', (e) => {
+      const newKey = e.target.value.trim();
+      if (!newKey || newKey === currentSelectedKey) return;
+      if (sequencePresets[newKey]) {
+        alert('その識別キーはすでに存在します。');
+        return;
+      }
+      sequencePresets[newKey] = sequencePresets[currentSelectedKey];
+      delete sequencePresets[currentSelectedKey];
+      currentSelectedKey = newKey;
+      renderPresetList();
+    });
+
+    document.getElementById('inputName').addEventListener('input', (e) => {
+      sequencePresets[currentSelectedKey].name = e.target.value;
+      renderPresetList();
+      updateJsonView();
+    });
+
+    document.getElementById('inputPrefix').addEventListener('input', (e) => {
+      sequencePresets[currentSelectedKey].prefix = e.target.value;
+      updateJsonView();
+    });
+
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+      const preset = sequencePresets[currentSelectedKey];
+      const lastOffset = preset.timeline.length > 0 ? preset.timeline[preset.timeline.length - 1].offset + 30 : 0;
+      preset.timeline.push({ offset: lastOffset, label: "新しいイベント" });
+      preset.timeline.sort((a, b) => a.offset - b.offset);
+      renderTimelineRows();
+      updateJsonView();
+    });
+
+    document.getElementById('addPresetBtn').addEventListener('click', () => {
+      const newKey = "new_mission_" + Date.now().toString().slice(-4);
+      sequencePresets[newKey] = {
+        name: "新規ミッション",
+        prefix: "T",
+        timeline: [
+          { offset: 0, label: "リフトオフ" }
+        ]
+      };
+      selectPreset(newKey);
+    });
+
+    document.getElementById('deletePresetBtn').addEventListener('click', () => {
+      if (Object.keys(sequencePresets).length <= 1) {
+        alert('最低1つのプリセットを残す必要があります。');
+        return;
+      }
+      if (confirm(`本当にプリセット「${currentSelectedKey}」を削除しますか？`)) {
+        delete sequencePresets[currentSelectedKey];
+        currentSelectedKey = Object.keys(sequencePresets)[0];
+        selectPreset(currentSelectedKey);
+      }
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        e.target.classList.add('active');
+        const tabName = e.target.dataset.tab;
+        if (tabName === 'visual') {
+          document.getElementById('tabVisual').style.display = 'block';
+        } else {
+          document.getElementById('tabJson').style.display = 'block';
+        }
+      });
+    });
+
+    document.getElementById('applyJsonBtn').addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(document.getElementById('jsonTextArea').value);
+        if (!parsed.name || !parsed.timeline) throw new Error("無効なフォーマットです。");
+        sequencePresets[currentSelectedKey] = parsed;
+        renderTimelineRows();
+        alert('JSONを適用しました！');
+      } catch (err) {
+        alert('JSONのパースに失敗しました: ' + err.message);
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const fileContent = `const sequencePresets = ${JSON.stringify(sequencePresets, null, 2)};`;
+      const blob = new Blob([fileContent], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sequences.js';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          let text = event.target.result;
+          text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
+          const imported = JSON.parse(text);
+          if (typeof imported === 'object' && imported !== null) {
+            sequencePresets = imported;
+            const firstKey = Object.keys(sequencePresets)[0];
+            selectPreset(firstKey);
+            alert('シーケンスデータを正常にインポートしました！');
+          }
+        } catch (err) {
+          alert('ファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    selectPreset('crew13');
+  </script>
+</body>
+</html>
