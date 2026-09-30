@@ -184,7 +184,7 @@
           { offset: 35430, label: "エキサイティング・ランディング (着水完了)" }
         ]
       },
-      h3_24: {
+      jaxa: {
         name: "JAXA H3 Launch Vehicle (Flight 4)",
         prefix: "X",
         timeline: [
@@ -211,7 +211,7 @@
           { offset: 1751,   label: "Xバンド防衛通信衛星「きらめき3号」分離" }
         ]
       },
-      jaxa: {
+      jaxastd: {
         name: "JAXA H3 / H-IIA",
         prefix: "X",
         timeline: [
