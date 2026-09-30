@@ -393,32 +393,55 @@
 
     // GitHubからのデータ読み込み関数（ローカルの sequences.js を優先、失敗時はRawから取得を試みる）
     async function fetchFromGithub() {
-      const urls = ['./sequences.js', document.getElementById('githubUrlInput').value.trim()];
-      
-      for (const url of urls) {
-        if (!url) continue;
+      const url = './sequences.js';
+    
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+        let text = await response.text();
+        
+        let parsed = null;
+    
+        // パターン1:そのままJSONとしてパースを試す
         try {
-          const response = await fetch(url);
-          if (!response.ok) continue;
-          let text = await response.text();
-          
-          text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
-          const parsed = JSON.parse(text);
-          
-          if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) {
-            sequencePresets = parsed;
-            const firstKey = Object.keys(sequencePresets)[0];
-            if (firstKey) {
-              selectPreset(firstKey);
+          parsed = JSON.parse(text);
+        } catch (e1) {
+          // パターン2: "const sequencePresets = " などを柔軟に削除してパースを試す
+          try {
+            // 変数代入の記述を除去
+            let cleaned = text.replace(/^(const|let|var)\s+[\w$]+\s*=\s*/, '');
+            // 末尾のセミコロンや余計な空白を削除
+            cleaned = cleaned.trim().replace(/;\s*$/, '');
+            parsed = JSON.parse(cleaned);
+          } catch (e2) {
+            // パターン3: JavaScriptオブジェクトとして安全に評価する（最終手段）
+            try {
+              const evalFunc = new Function(`${text}; return sequencePresets;`);
+              parsed = evalFunc();
+            } catch (e3) {
+              throw new Error('すべてのパース方式で失敗しました。');
             }
-            console.log('データを正常に読み込みました:', url);
-            return;
           }
-        } catch (err) {
-          // 次のURLを試す
+        }
+        
+        if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) {
+          sequencePresets = parsed;
+          const firstKey = Object.keys(sequencePresets)[0];
+          if (firstKey) {
+            selectPreset(firstKey);
+          }
+          console.log('sequences.js を正常に読み込みました！', sequencePresets);
+        } else {
+          throw new Error('読み込んだデータが空か、オブジェクトではありません。');
+        }
+      } catch (err) {
+        console.warn('自動読み込みに失敗しました。', err.message);
+        // 失敗した場合はフォールバックとして最初のデフォルトプリセットを表示
+        const keys = Object.keys(sequencePresets);
+        if (keys.length > 0) {
+          selectPreset(keys[0]);
         }
       }
-      console.warn('自動読み込みに失敗しました。ファイルから読み込んでください。');
     }
 
     document.getElementById('fetchGithubBtn').addEventListener('click', async () => {
