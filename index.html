@@ -612,6 +612,8 @@
       const presets = typeof sequencePresets !== 'undefined' ? sequencePresets : { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
 
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
+      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets["H3-24"] || presets.default));
+      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("transporter-18") || text.includes("transporter 18")) return JSON.parse(JSON.stringify(presets.transporter18 || presets.default));
       if (text.includes("crew-13") || text.includes("crew13") || text.includes("dragon")) return JSON.parse(JSON.stringify(presets.crew13 || presets.default));
       if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(presets.ariane5_6 || presets.default));
@@ -627,8 +629,6 @@
       if (text.includes("long march") || text.includes("長征") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(presets.longmarch || presets.default));
       if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(presets.nuri || presets.default));
       if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(presets.electron || presets.default));
-      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets["H3-24"] || presets.default));
-      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(presets.sls || presets.default));
       return JSON.parse(JSON.stringify(presets.default));
     }
