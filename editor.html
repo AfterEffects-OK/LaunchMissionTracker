@@ -70,6 +70,29 @@
       align-items: center;
     }
 
+    /* スクロールバー全体の幅や高さ */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    /* スクロールバーの軌道（背景） */
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6); /* メイン画面に合わせたダークトーン */
+      border-radius: 4px;
+    }
+    
+    /* スクロールバーのつまみ（バー部分） */
+    ::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4); /* アクセントカラー等に合わせた半透明 */
+      border-radius: 4px;
+    }
+    
+    /* ホバー時のつまみ */
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.7);
+    }
+
     button, input, select, a.btn-link {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border-color);
