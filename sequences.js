@@ -185,6 +185,33 @@
         ]
       },
       jaxa: {
+        name: "JAXA H3 Launch Vehicle (Flight 4)",
+        prefix: "X",
+        timeline: [
+          { offset: -27900, label: "機体点検・慣性航法装置アライメント開始" },
+          { offset: -14400, label: "LE-9 / LE-5Bエンジン点検開始" },
+          { offset: -10800, label: "発射場 液体水素・液体酸素の貯蔵・供給系冷却開始" },
+          { offset: -9000,  label: "1段・2段タンクへの低温推進剤（LH2/LOX）充填開始" },
+          { offset: -3600,  label: "固体ロケットブースター（SRB-3）点検完了確認" },
+          { offset: -1800,  label: "自動カウントダウンシーケンス開始準備完了" },
+          { offset: -600,   label: "機体電源を外部電源から内蔵バッテリーへ切り替え" },
+          { offset: -300,   label: "発射台の各種ケーブル類接続確認" },
+          { offset: -60,    label: "自動シーケンスへ移行（ファイナルモード）" },
+          { offset: -10,    label: "メインエンジン（LE-9）タンク加圧完了" },
+          { offset: -5,     label: "発射管制システム最終承認（GO）" },
+          { offset: 0,      label: "リフトオフ" },
+          { offset: 116,    label: "SRB-3 分離" },
+          { offset: 227,    label: "衛星フェアリング分離" },
+          { offset: 301,    label: "第1段エンジン燃焼停止 (MECO)" },
+          { offset: 309,    label: "第1段・第2段分離" },
+          { offset: 322,    label: "第2段エンジン第1回推力立上がり (SELI1)" },
+          { offset: 771,    label: "第2段エンジン第1回燃焼停止 (SECO1)" },
+          { offset: 1480,   label: "第2段エンジン第2回推力立上がり (SELI2)" },
+          { offset: 1731,   label: "第2段エンジン第2回燃焼停止 (SECO2)" },
+          { offset: 1751,   label: "Xバンド防衛通信衛星「きらめき3号」分離" }
+        ]
+      },
+      jaxa: {
         name: "JAXA H3 / H-IIA",
         prefix: "X",
         timeline: [
