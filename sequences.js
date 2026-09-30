@@ -185,7 +185,7 @@
         ]
       },
       jaxa: {
-        name: "JAXA H3 Launch Vehicle (Flight 4)",
+        name: "JAXA H3 / H-IIA",
         prefix: "X",
         timeline: [
           { offset: -27900, label: "機体点検・慣性航法装置アライメント開始" },
