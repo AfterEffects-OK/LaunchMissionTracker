@@ -576,7 +576,7 @@
     // スプレッドシートからデータを非同期で取得する関数
     async function loadPresetsFromGAS() {
       try {
-        const response = await fetch(https://script.google.com/macros/s/AKfycbyx693J5GdK0IpqyKU7ZPwlkPhvReBbbjP5FiJdDndwuf19tHgXV7xX536VWA_5Rsbp1w/exec);
+        const response = await fetch('https://script.google.com/macros/s/AKfycbyx693J5GdK0IpqyKU7ZPwlkPhvReBbbjP5FiJdDndwuf19tHgXV7xX536VWA_5Rsbp1w/exec');
         const result = await response.json();
         if (result.status === 'success' && result.data) {
           sequencePresets = result.data;
