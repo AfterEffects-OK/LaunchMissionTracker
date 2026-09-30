@@ -211,22 +211,6 @@
           { offset: 1751,   label: "Xバンド防衛通信衛星「きらめき3号」分離" }
         ]
       },
-      jaxastd: {
-        name: "JAXA H3 / H-IIA",
-        prefix: "X",
-        timeline: [
-          { offset: -1800, label: "ターミナルカウントダウン準備" },
-          { offset: -480,  label: "【Go/No-Go コーリング】 発射管制長による最終確認" },
-          { offset: -270,  label: "自動カウントダウンシーケンス開始" },
-          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
-          { offset: -3,    label: "LE-9 メインエンジン点火" },
-          { offset: 0,     label: "SRB-3 (固体ブースター) 点火 / 離昇 (Liftoff)" },
-          { offset: 80,    label: "Max-Q 通過" },
-          { offset: 116,   label: "SRB-3 分離" },
-          { offset: 210,   label: "衛星フェアリング分離" },
-          { offset: 296,   label: "MECO / 第1段・第2段分離" }
-        ]
-      },
       ariane5_6: {
         name: "ESA アリアン 5 / 6 (フランス/欧州)",
         prefix: "H",
