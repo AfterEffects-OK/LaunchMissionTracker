@@ -612,8 +612,6 @@
       const presets = typeof sequencePresets !== 'undefined' ? sequencePresets : { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
 
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
-      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets["H3-24"] || presets.default));
-      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("transporter-18") || text.includes("transporter 18")) return JSON.parse(JSON.stringify(presets.transporter18 || presets.default));
       if (text.includes("crew-13") || text.includes("crew13") || text.includes("dragon")) return JSON.parse(JSON.stringify(presets.crew13 || presets.default));
       if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(presets.ariane5_6 || presets.default));
@@ -623,6 +621,8 @@
       if (text.includes("gslv")) return JSON.parse(JSON.stringify(presets.gslv || presets.default));
       if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(presets.astra || presets.default));
       if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(presets.virginorbit || presets.default));
+      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets["H3-24"] || presets.default));
+      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("starship")) return JSON.parse(JSON.stringify(presets.starship || presets.default));
       if (text.includes("heavy")) return JSON.parse(JSON.stringify(presets.falconheavy || presets.default)); 
       if (text.includes("falcon")) return JSON.parse(JSON.stringify(presets.falcon9 || presets.default));
