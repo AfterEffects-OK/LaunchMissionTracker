@@ -388,35 +388,31 @@
 
     // GitHubからのデータ読み込み関数
     async function fetchFromGithub() {
-      const targetUrl = document.getElementById('githubUrlInput').value.trim();
-      if (!targetUrl) {
-        alert('URLを入力してください。');
-        return;
-      }
-  
-     // CORSプロキシを経由して取得するURLに変換
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+     // 同じリポジトリ内にある sequences.js を相対パスで直接取得
+     const url = './sequences.js';
 
-      try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
-        let text = await response.text();
+     try {
+       const response = await fetch(url);
+       if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+       let text = await response.text();
     
-        text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
-        const parsed = JSON.parse(text);
+       // "const sequencePresets = " などのJS宣言が含まれていてもパースできるように処理
+       text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
+       const parsed = JSON.parse(text);
     
-        if (typeof parsed === 'object' && parsed !== null) {
-          sequencePresets = parsed;
-          const firstKey = Object.keys(sequencePresets)[0];
-          if (firstKey) {
-            selectPreset(firstKey);
-          }
-          alert('GitHubから最新のデータを正常に読み込みました！');
-        }
-      } catch (err) {
-        alert('読み込みに失敗しました。「ファイルから読込」をご利用ください。\n\nエラー: ' + err.message);
-      }
-    }
+       if (typeof parsed === 'object' && parsed !== null) {
+         sequencePresets = parsed;
+         const firstKey = Object.keys(sequencePresets)[0];
+         if (firstKey) {
+           selectPreset(firstKey);
+         }
+         console.log('sequences.js を正常に読み込みました！');
+       }
+     } catch (err) {
+       // 失敗した場合は初期データで継続
+       console.warn('sequences.js の自動読み込みに失敗しました（初回など）。', err.message);
+     }
+   }
 
     document.getElementById('fetchGithubBtn').addEventListener('click', fetchFromGithub);
 
