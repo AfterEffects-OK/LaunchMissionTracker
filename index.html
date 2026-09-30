@@ -73,7 +73,7 @@
       flex-wrap: wrap;
     }
 
-    select, button, input, textarea {
+    select, button, input, textarea, a.live-link-btn {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border-color);
       color: var(--text-main);
@@ -81,16 +81,18 @@
       border-radius: 6px;
       outline: none;
       font-size: 0.9rem;
+      text-decoration: none;
       transition: all 0.3s ease;
+      display: inline-block;
     }
 
-    button {
+    button, a.live-link-btn {
       cursor: pointer;
       background: rgba(0, 242, 255, 0.15);
       font-weight: bold;
     }
 
-    button:hover {
+    button:hover, a.live-link-btn:hover {
       background: var(--accent-blue);
       color: #000;
       box-shadow: 0 0 15px var(--accent-glow);
@@ -224,7 +226,7 @@
 
     .mission-sub {
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-size: 0.95rem;
     }
 
@@ -236,7 +238,7 @@
       color: #ffffff;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
       letter-spacing: 2px;
-      margin: 15px 0;
+      margin: 10px 0;
       white-space: nowrap;
     }
 
@@ -250,6 +252,31 @@
       letter-spacing: 1px;
       background: rgba(0, 242, 255, 0.2);
       border: 1px solid var(--accent-blue);
+    }
+
+    .info-sub-box {
+      margin: 10px 0 15px 0;
+      font-size: 0.9rem;
+    }
+
+    #targetTime {
+      color: var(--text-muted);
+    }
+
+    #launchWindow {
+      color: var(--accent-blue);
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .live-link-container {
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .live-link-container.visible {
+      display: block;
     }
 
     .telemetry-grid {
@@ -440,7 +467,16 @@
 
         <div class="mission-sub" id="missionSub">---</div>
         <div class="timer" id="timerDisplay">T- 00:00:00</div>
-        <div id="targetTime" style="color: var(--text-muted); font-size: 0.9rem;"></div>
+        
+        <div class="info-sub-box">
+          <div id="targetTime"></div>
+          <div id="launchWindow"></div>
+        </div>
+
+        <!-- ライブ配信リンク自動表示用コンテナ -->
+        <div class="live-link-container" id="liveLinkContainer">
+          <a id="liveLinkBtn" class="live-link-btn" href="https://www.spacex.com/launches/crew13" target="_blank" rel="noopener noreferrer">🔴 公式ライブ配信を視聴 (Crew-13)</a>
+        </div>
 
         <div class="telemetry-grid">
           <div class="telemetry-card">
@@ -488,255 +524,17 @@
     </div>
   </div>
 
-  <script>
-    const sequencePresets = {
-      falcon9: {
-        name: "SpaceX Falcon 9",
-        prefix: "T",
-        timeline: [
-          { offset: -2100, label: "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
-          { offset: -420,  label: "Falcon 9 エンジン冷却 (Engine Chill)" },
-          { offset: -300,  label: "【Go/No-Go ポーリング】 発射管制ディレクター確認" },
-          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
-          { offset: -60,   label: "フライトコンピューター制御移行" },
-          { offset: -3,    label: "エンジン点火シーケンス開始" },
-          { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 72,    label: "Max-Q (最大動圧点通過)" },
-          { offset: 147,   label: "MECO (第1段メインエンジン停止)" },
-          { offset: 151,   label: "第1段 / 第2段 分離" },
-          { offset: 158,   label: "SES-1 (第2段エンジン点火)" },
-          { offset: 200,   label: "ペロードフェアリング分離" },
-          { offset: 500,   label: "第1段 着陸バーン / ドローンシップ着陸" },
-          { offset: 520,   label: "SECO-1 (軌道投入)" }
-        ]
-      },
-      starship: {
-        name: "SpaceX Starship",
-        prefix: "T",
-        timeline: [
-          { offset: -2900, label: "液体メタン & 液体酸素 充填開始" },
-          { offset: -360,  label: "【Go/No-Go ポーリング】 フライトディレクター確認" },
-          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
-          { offset: -120,  label: "スーパーヘヴィ / スターシップ 冷却開始" },
-          { offset: -3,    label: "ラプターエンジン33基 点火開始" },
-          { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 55,    label: "Max-Q 通過" },
-          { offset: 160,   label: "Hot-Staging (1段点火のまま2段点火・分離)" },
-          { offset: 400,   label: "スーパーヘヴィ Mechazilla空中キャッチ" },
-          { offset: 510,   label: "スターシップ エンジン停止 (軌道到達)" }
-        ]
-      },
-      jaxa: {
-        name: "JAXA H3 / H-IIA",
-        prefix: "X",
-        timeline: [
-          { offset: -1800, label: "ターミナルカウントダウン準備" },
-          { offset: -480,  label: "【Go/No-Go コーリング】 発射管制長による最終確認" },
-          { offset: -270,  label: "自動カウントダウンシーケンス開始" },
-          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
-          { offset: -3,    label: "LE-9 メインエンジン点火" },
-          { offset: 0,     label: "SRB-3 (固体ブースター) 点火 / 離昇 (Liftoff)" },
-          { offset: 80,    label: "Max-Q 通過" },
-          { offset: 116,   label: "SRB-3 分離" },
-          { offset: 210,   label: "衛星フェアリング分離" },
-          { offset: 296,   label: "MECO / 第1段・第2段分離" }
-        ]
-      },
-      ariane5_6: {
-        name: "ESA アリアン 5 / 6 (フランス/欧州)",
-        prefix: "H",
-        timeline: [
-          { offset: -1200, label: "クールクーラント供給および低温推進剤最終補充" },
-          { offset: -390,  label: "【Go/No-Go】 ギアナ宇宙センター発射管制確認" },
-          { offset: -300,  label: "自動発射シーケンス(SEQUENCE)開始" },
-          { offset: -7,    label: "バルカン / HM7B メインエンジン点火" },
-          { offset: 0,     label: "固体ブースター (P120C等) 点火・リフトオフ" },
-          { offset: 68,    label: "Max-Q (最大動圧点) 通過" },
-          { offset: 142,   label: "固体ブースター全基分離" },
-          { offset: 210,   label: "ペロードフェアリング投棄" },
-          { offset: 540,   label: "上段エンジン停止 (SECO) ・軌道投入完了" }
-        ]
-      },
-      pslv: {
-        name: "ISRO PSLV (インド極軌道打ち上げ)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "カウントダウン準備・機体各系最終点検" },
-          { offset: -300,  label: "【Go/No-Go】 サティシュ・ダワン宇宙センター確認" },
-          { offset: -60,   label: "自動ローンチシークエンス（ALS）へ移行" },
-          { offset: -2,    label: "第1段(S1)固体ロケットモーター点火前チェック" },
-          { offset: 0,     label: "第1段S1点火 ＆ 6基のストラップオンブースター点火・リフトオフ" },
-          { offset: 25,    label: "地上側ブースター分離" },
-          { offset: 70,    label: "空中ブースター分離 ＆ Max-Q通過" },
-          { offset: 110,   label: "第1段バーンアウト ＆ 第2段液体エンジン点火・分離" },
-          { offset: 160,   label: "ペイロードフェアリング分離" },
-          { offset: 300,   label: "第2段燃焼終了・第3段(固体)点火" }
-        ]
-      },
-      lvm3: {
-        name: "ISRO LVM3 (インド大型主力)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
-          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
-          { offset: -120,  label: "自動ローンチシーケンス開始" },
-          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
-          { offset: 0,     label: "S200固体ブースター点火・リフトオフ (Liftoff)" },
-          { offset: 70,    label: "Max-Q 到達" },
-          { offset: 128,   label: "S200 固体ブースター分離" },
-          { offset: 215,   label: "ペロードフェアリング分離" },
-          { offset: 300,   label: "L110 コアエンジン停止・分離" },
-          { offset: 310,   label: "C25 上段クライオジェニックエンジン点火" }
-        ]
-      },
-      sslv: {
-        name: "ISRO SSLV (インド小型衛星打ち上げ)",
-        prefix: "T",
-        timeline: [
-          { offset: -600,  label: "自律点検システムによる機体ヘルスチェック" },
-          { offset: -180,  label: "【Go/No-Go】 最終発射判断" },
-          { offset: -10,   label: "自動ローンチ・コントロール開始" },
-          { offset: 0,     label: "第1段(SS1)固体モーター点火・リフトオフ" },
-          { offset: 60,    label: "Max-Q 通過" },
-          { offset: 120,   label: "第1段分離 ＆ 第2段(SS2)点火" },
-          { offset: 200,   label: "ペイロードフェアリング分離" },
-          { offset: 280,   label: "第2段分離 ＆ 第3段(SS3)点火" },
-          { offset: 450,   label: "ベロシティ・トリミング・モジュール(VTM)展開" }
-        ]
-      },
-      gslv: {
-        name: "ISRO GSLV (インド静止衛星型)",
-        prefix: "T",
-        timeline: [
-          { offset: -1800, label: "極低温燃料・液体推進剤充填完了" },
-          { offset: -360,  label: "【Go/No-Go】 ミッション管制最終ポーリング" },
-          { offset: -60,   label: "自動打ち上げ制御シーケンスへ移行" },
-          { offset: -4.8,  label: "コアステージ液体エンジン点火" },
-          { offset: 0,     label: "S125固体ブースター4基点火・リフトオフ" },
-          { offset: 75,    label: "Max-Q 通過" },
-          { offset: 100,   label: "固体ブースター4基一斉分離" },
-          { offset: 270,   label: "大型フェアリング分離" },
-          { offset: 300,   label: "コアステージ分離 ＆ 上段クライオジェニック点火" }
-        ]
-      },
-      astra: {
-        name: "Astra ロケット 3 (民間ベンチャー)",
-        prefix: "T",
-        timeline: [
-          { offset: -600,  label: "自動タンク加圧および燃料(RP-1/LOX)充填完了" },
-          { offset: -120,  label: "最終「Go for Launch」システム自動認証" },
-          { offset: -10,   label: "発射管制コンピューター制御へ完全に移行" },
-          { offset: -3,    label: "Delphinエンジン 5基点火シーケンス" },
-          { offset: 0,     label: "リフトオフ (垂直上昇開始)" },
-          { offset: 35,    label: "Max-Q (最大動圧点) 通過" },
-          { offset: 175,   label: "MECO (第1段エンジン停止) ＆ 段間分離" },
-          { offset: 181,   label: "上段エンジン(Aether)点火" },
-          { offset: 200,   label: "フェアリング分離" }
-        ]
-      },
-      virginorbit: {
-        name: "Virgin Orbit LauncherOne (空中発射)",
-        prefix: "T",
-        timeline: [
-          { offset: -900,  label: "母機ボーイング747 (Cosmic Girl) 発射空域へ到達" },
-          { offset: -300,  label: "ミッションディレクターによる最終発射許可 (GO/NOGO)" },
-          { offset: -60,   label: "ランチャーワン内部バッテリー給電へ切替 ＆ 最終アーム" },
-          { offset: -10,   label: "投下前カウントダウン自動シーケンス" },
-          { offset: 0,     label: "ロケット投下 (Drop) ＆ 5秒後 第1段Newton三基点火" },
-          { offset: 30,    label: "Max-Q 通過" },
-          { offset: 185,   label: "第1段燃焼終了・分離 ＆ 第2段NewtonVac点火" },
-          { offset: 210,   label: "フェアリング分離" }
-        ]
-      },
-      longmarch: {
-        name: "CNSA 長征5号 (中国)",
-        prefix: "T",
-        timeline: [
-          { offset: -1800, label: "極低温燃料(LOX/LH2)充填最終段階" },
-          { offset: -420,  label: "自動カウントダウンモード移行" },
-          { offset: -180,  label: "【Go/No-Go】 発射管制最終確認" },
-          { offset: -3,    label: "YF-77およびYF-100ブースター点火" },
-          { offset: 0,     label: "リフトオフ・文昌宇宙発射場離昇" },
-          { offset: 35,    label: "Max-Q 通過" },
-          { offset: 180,   label: "液体ブースター分離" },
-          { offset: 290,   label: "第1段エンジン停止・分離" },
-          { offset: 300,   label: "第2段点火・フェアリング分離" }
-        ]
-      },
-      nuri: {
-        name: "KARI ヌリ号 KSLV-II (韓国)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "ナロ宇宙センター 最終点検" },
-          { offset: -300,  label: "【Go/No-Go】 発射管理委員会による最終発射許可" },
-          { offset: -10,   label: "自動ローンチシークエンス開始 (ALCS)" },
-          { offset: -3,    label: "75トン級液体エンジン プレファイヤー" },
-          { offset: 0,     label: "リフトオフ (Liftoff)" },
-          { offset: 50,    label: "Max-Q 通過" },
-          { offset: 127,   label: "第1段分離" },
-          { offset: 204,   label: "フェアリング分離" },
-          { offset: 425,   label: "第2段エンジン停止・軌道投入完了" }
-        ]
-      },
-      electron: {
-        name: "Rocket Lab エレクトロン (NZ / 米国)",
-        prefix: "T",
-        timeline: [
-          { offset: -1200, label: "RP-1 & 液体酸素 充填作業 (マヒア LC-1)" },
-          { offset: -300,  label: "【Go/No-Go】 発射管制官確認" },
-          { offset: -120,  label: "自律飛行システム (FTS) アーミング" },
-          { offset: -2,    label: "ラザフォードエンジン 電動ポンプ駆動開始" },
-          { offset: 0,     label: "エンジン点火・リフトオフ" },
-          { offset: 80,    label: "Max-Q 通過" },
-          { offset: 155,   label: "MECO (第1段エンジン停止)" },
-          { offset: 159,   label: "第1段・第2段分離" },
-          { offset: 163,   label: "キウイエンジン(第2段)点火" },
-          { offset: 180,   label: "フェアリング分離" }
-        ]
-      },
-      sls: {
-        name: "NASA SLS (Artemis)",
-        prefix: "T",
-        timeline: [
-          { offset: -14400, label: "コアステージ 極低温推進剤 充填開始" },
-          { offset: -3600,  label: "最終発射前点検 (Terminal Countdown 開始)" },
-          { offset: -900,   label: "【Go/No-Go ポーリング】 ミッションマネジメントチーム確認" },
-          { offset: -600,   label: "発射管制 最終GO" },
-          { offset: -30,    label: "ロケット自動シークエンス移行" },
-          { offset: -6,     label: "RS-25 メインエンジン3基 点火" },
-          { offset: 0,      label: "SRB (固体ロケットブースター) 点火・リフトオフ" },
-          { offset: 70,     label: "Max-Q 通過" },
-          { offset: 126,    label: "SRB 分離" },
-          { offset: 140,    label: "ローンチアボートシステム (LAS) 排出" },
-          { offset: 500,    label: "コアステージ本燃焼終了・メインエンジン停止" },
-          { offset: 540,    label: "コアステージ分離 / ICPS推進" }
-        ]
-      },
-      default: {
-        name: "標準ロケット プリセット",
-        prefix: "T",
-        timeline: [
-          { offset: -900, label: "ターミナルカウントダウン開始" },
-          { offset: -300, label: "【Go/No-Go ポーリング】 発射可否の最終確認" },
-          { offset: -240, label: "【Go for Launch】 発射管制最終承認" },
-          { offset: -180, label: "自動シーケンス開始" },
-          { offset: 0,    label: "リフトオフ / メインエンジン点火" },
-          { offset: 60,   label: "Max-Q 通過" }
-        ]
-      }
-    };
+  <!-- ① 先に external な sequences.js を読み込む -->
+  <script src="sequences.js"></script>
 
+  <!-- ② メインプログラム -->
+  <script>
     let mockLaunches = [
-      { id: "1", name: "Ariane 6 / Maiden Flight & Payloads", provider: "ESA / Arianespace", rocket: "Ariane", pad: "Kourou / ELA-4 (フランス領)", net: "2026-10-05T21:10:00Z" },
-      { id: "2", name: "PSLV-C / Earth Observation Satellite", provider: "ISRO", rocket: "PSLV", pad: "Satish Dhawan / FLP (インド)", net: "2026-10-10T04:30:00Z" },
-      { id: "3", name: "Falcon 9 / Starlink Group", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-15T08:15:00Z" },
-      { id: "4", name: "Astra Rocket 3 / Commercial Test", provider: "Astra Space", rocket: "Astra", pad: "Pacific Spaceport Complex (米国)", net: "2026-10-18T22:00:00Z" },
-      { id: "5", name: "Virgin Orbit LauncherOne / Dedicated", provider: "Virgin Orbit", rocket: "VirginOrbit", pad: "Mojave Air and Space Port (空中)", net: "2026-10-22T19:00:00Z" },
-      { id: "6", name: "H3 Launch Vehicle (Flight 4)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-25T05:30:00Z" },
-      { id: "7", name: "Nuri KSLV-II / Satellite Mission", provider: "KARI", rocket: "Nuri", pad: "Naro Space Center (韓国)", net: "2026-10-28T07:30:00Z" },
-      { id: "8", name: "Long March 5 / Deep Space Payload", provider: "CNSA", rocket: "Long March", pad: "Wenchang Space Launch Site (中国)", net: "2026-11-02T10:00:00Z" },
-      { id: "9", name: "LVM3 / Chandrayaan Mission", provider: "ISRO", rocket: "LVM3", pad: "Satish Dhawan / SLP (インド)", net: "2026-11-08T09:00:00Z" },
-      { id: "10", name: "Electron / Dedicated Commercial Launch", provider: "Rocket Lab", rocket: "Electron", pad: "Mahia / LC-1B (ニュージーランド)", net: "2026-11-15T02:30:00Z" }
+      { id: "1", name: "Crew-13 (Dragon Mission)", provider: "SpaceX", rocket: "Crew-13", pad: "Kennedy Space Center / LC-39A", net: "2026-10-05T08:00:00Z", window_start: "2026-10-05T08:00:00Z", window_end: "2026-10-05T12:00:00Z", webcast_live: "https://www.spacex.com/launches/crew13" },
+      { id: "2", name: "Ariane 6 / Maiden Flight & Payloads", provider: "ESA / Arianespace", rocket: "Ariane", pad: "Kourou / ELA-4 (フランス領)", net: "2026-10-05T21:10:00Z", window_start: "2026-10-05T21:00:00Z", window_end: "2026-10-05T23:00:00Z", webcast_live: "https://www.youtube.com/watch?v=example1" },
+      { id: "3", name: "PSLV-C / Earth Observation Satellite", provider: "ISRO", rocket: "PSLV", pad: "Satish Dhawan / FLP (インド)", net: "2026-10-10T04:30:00Z", window_start: "2026-10-10T04:15:00Z", window_end: "2026-10-10T05:00:00Z", webcast_live: "https://www.youtube.com/watch?v=example2" },
+      { id: "4", name: "Falcon 9 / Starlink Group", provider: "SpaceX", rocket: "Falcon 9", pad: "Cape Canaveral / LC-40", net: "2026-10-15T08:15:00Z", window_start: "2026-10-15T08:15:00Z", window_end: "2026-10-15T12:15:00Z", webcast_live: "https://www.youtube.com/watch?v=example3" },
+      { id: "5", name: "H3 Launch Vehicle (Flight 4)", provider: "JAXA", rocket: "H3", pad: "Tanegashima Space Center", net: "2026-10-25T05:30:00Z", window_start: "2026-10-25T05:00:00Z", window_end: "2026-10-25T07:00:00Z", webcast_live: "https://www.youtube.com/watch?v=example6" }
     ];
 
     mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
@@ -767,7 +565,10 @@
             provider: item.launch_service_provider?.name || "Unknown Provider",
             rocket: item.rocket?.configuration?.name || "Rocket",
             pad: item.pad?.name || "Launch Pad",
-            net: item.net || new Date().toISOString()
+            net: item.net || new Date().toISOString(),
+            window_start: item.window_start || "",
+            window_end: item.window_end || "",
+            webcast_live: item.vidURLs && item.vidURLs.length > 0 ? item.vidURLs[0].url : (item.webcast_live || "")
           }));
           mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
           selectedIndex = 0;
@@ -784,23 +585,29 @@
       setTimeout(() => { btn.textContent = "API同期"; }, 3000);
     }
 
+    // sequences.js の sequencePresets からデータを取得して返すように実装
     function getSequencePreset(launch) {
+      // 万が一 sequences.js が読み込まれていない場合の安全策
+      const presets = typeof sequencePresets !== 'undefined' ? sequencePresets : { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
+
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
-      if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(sequencePresets.ariane5_6));
-      if (text.includes("pslv")) return JSON.parse(JSON.stringify(sequencePresets.pslv));
-      if (text.includes("lvm3")) return JSON.parse(JSON.stringify(sequencePresets.lvm3));
-      if (text.includes("sslv")) return JSON.parse(JSON.stringify(sequencePresets.sslv));
-      if (text.includes("gslv")) return JSON.parse(JSON.stringify(sequencePresets.gslv));
-      if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(sequencePresets.astra));
-      if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(sequencePresets.virginorbit));
-      if (text.includes("starship")) return JSON.parse(JSON.stringify(sequencePresets.starship));
-      if (text.includes("falcon")) return JSON.parse(JSON.stringify(sequencePresets.falcon9));
-      if (text.includes("long march") || text.includes("長征") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(sequencePresets.longmarch));
-      if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(sequencePresets.nuri));
-      if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(sequencePresets.electron));
-      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(sequencePresets.jaxa));
-      if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(sequencePresets.sls));
-      return JSON.parse(JSON.stringify(sequencePresets.default));
+      if (text.includes("transporter-18") || text.includes("transporter 18")) return JSON.parse(JSON.stringify(presets.transporter18 || presets.default));
+      if (text.includes("crew-13") || text.includes("crew13") || text.includes("dragon")) return JSON.parse(JSON.stringify(presets.crew13 || presets.default));
+      if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(presets.ariane5_6 || presets.default));
+      if (text.includes("pslv")) return JSON.parse(JSON.stringify(presets.pslv || presets.default));
+      if (text.includes("lvm3")) return JSON.parse(JSON.stringify(presets.lvm3 || presets.default));
+      if (text.includes("sslv")) return JSON.parse(JSON.stringify(presets.sslv || presets.default));
+      if (text.includes("gslv")) return JSON.parse(JSON.stringify(presets.gslv || presets.default));
+      if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(presets.astra || presets.default));
+      if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(presets.virginorbit || presets.default));
+      if (text.includes("starship")) return JSON.parse(JSON.stringify(presets.starship || presets.default));
+      if (text.includes("falcon")) return JSON.parse(JSON.stringify(presets.falcon9 || presets.default));
+      if (text.includes("long march") || text.includes("長征") || text.includes("cnsa") || text.includes("wenchang")) return JSON.parse(JSON.stringify(presets.longmarch || presets.default));
+      if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(presets.nuri || presets.default));
+      if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(presets.electron || presets.default));
+      if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
+      if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(presets.sls || presets.default));
+      return JSON.parse(JSON.stringify(presets.default));
     }
 
     function formatTime(seconds) {
@@ -996,6 +803,27 @@
 
       document.getElementById('missionSub').textContent = `${launch.provider} • ${launch.rocket} • ${launch.pad}`;
       document.getElementById('targetTime').textContent = `Target NET: ${new Date(launch.net).toLocaleString()}`;
+
+      // 打ち上げウィンドウの表示設定
+      const windowEl = document.getElementById('launchWindow');
+      if (launch.window_start && launch.window_end) {
+        const startStr = new Date(launch.window_start).toLocaleString();
+        const endStr = new Date(launch.window_end).toLocaleTimeString();
+        windowEl.textContent = `Launch Window: ${startStr} 〜 ${endStr}`;
+      } else {
+        windowEl.textContent = `Launch Window: 即時ウィンドウ (Instantaneous)`;
+      }
+
+      // ライブ配信リンクの表示制御
+      const liveContainer = document.getElementById('liveLinkContainer');
+      const liveBtn = document.getElementById('liveLinkBtn');
+      if (launch.webcast_live && launch.webcast_live.trim() !== "") {
+        liveBtn.href = launch.webcast_live;
+        liveContainer.classList.add('visible');
+      } else {
+        liveBtn.href = "#";
+        liveContainer.classList.remove('visible');
+      }
 
       simT = -10;
       if (timerInterval) clearInterval(timerInterval);

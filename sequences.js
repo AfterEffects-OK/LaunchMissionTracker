@@ -1,0 +1,386 @@
+
+    const sequencePresets = {
+      crew13: {
+        name: "SpaceX Crew ミッション (クルードラゴン)",
+        prefix: "T",
+        timeline: [
+          { offset: -2700, label: "推進剤ローディングのGO判断 (Propellant Load GO)" },
+          { offset: -2520, label: "クルーアクセスアーム格納 (Crew Access Arm Retracts)" },
+          { offset: -2340, label: "ドラゴン宇宙船の脱出システム作動準備完了 (LAS Armed)" },
+          { offset: -2100, label: "RP-1 燃料充填開始 (RP-1 Loading Begins)" },
+          { offset: -2100, label: "第1段 液体酸素(LOX)充填開始 (1st Stage LOX Begins)" },
+          { offset: -960,  label: "第2段 液体酸素(LOX)充填開始 (2nd Stage LOX Begins)" },
+          { offset: -420,  label: "ファルコン9 エンジン冷却開始 (Engine Chill)" },
+          { offset: -300,  label: "ドラゴン宇宙船が内部電源へ移行 (Internal Power)" },
+          { offset: -60,   label: "フライトコンピュータ最終事前チェック開始 (Prelaunch Checks)" },
+          { offset: -60,   label: "推進剤タンクの加圧開始 (Tank Pressurization Begins)" },
+          { offset: -45,   label: "打ち上げのGO判断 (Launch Director GO)" },
+          { offset: -3,    label: "エンジン点火シーケンス開始 (Ignition Sequence)" },
+          { offset: 0,     label: "リフトオフ / 打ち上げ (Liftoff)" },
+          { offset: 72,    label: "Max Q (最大動圧点通過)" },
+          { offset: 144,   label: "第1段メインエンジン停止 (MECO)" },
+          { offset: 147,   label: "第1段・第2段分離 (Stage Separation)" },
+          { offset: 151,   label: "第1段機体反転 (Stage 1 Flip)" },
+          { offset: 155,   label: "第2段エンジン点火 (SES-1)" },
+          { offset: 161,   label: "ブーストバック燃焼開始 (Boostback Burn Begins)" },
+          { offset: 207,   label: "ブーストバック燃焼終了 (Boostback Burn Ends)" },
+          { offset: 380,   label: "第1段大気圏再突入バーン開始 (Entry Burn Begins)" },
+          { offset: 392,   label: "第1段大気圏再突入バーン終了 (Entry Burn Ends)" },
+          { offset: 444,   label: "第1段着陸バーン開始 (Landing Burn Begins)" },
+          { offset: 461,   label: "第1段着陸 (Stage 1 Landing)" },
+          { offset: 527,   label: "第2段エンジン停止 (SECO-1 / 軌道投入)" },
+          { offset: 579,   label: "ドラゴン宇宙船分離 (Dragon Separation)" },
+          { offset: 625,   label: "ノーズコーン開放シーケンス開始 (Nosecone Open)" }
+        ]
+      },
+      transporter18: {
+        name: "SpaceX Transporter-18 Mission",
+        prefix: "T",
+        timeline: [
+          // カウントダウンシーケンス
+          { offset: -2280, label: "推進剤ローディングのGO判断 (Propellant Load GO)" },
+          { offset: -2100, label: "RP-1 燃料充填開始 (RP-1 Loading)" },
+          { offset: -2100, label: "第1段 液体酸素(LOX)充填開始 (1st Stage LOX)" },
+          { offset: -960,  label: "第2段 液体酸素(LOX)充填開始 (2nd Stage LOX)" },
+          { offset: -420,  label: "ファルコン9 エンジン冷却開始 (Engine Chill)" },
+          { offset: -60,   label: "フライトコンピュータ最終事前チェック開始" },
+          { offset: -60,   label: "推進剤タンク加圧開始 (Tank Pressurization)" },
+          { offset: -45,   label: "打ち上げのGO判断 (Launch Director GO)" },
+          { offset: -3,    label: "エンジン点火シーケンス開始 (Ignition)" },
+          { offset: 0,     label: "ファルコン9 リフトオフ (Liftoff)" },
+
+          // 打ち上げ・飛行・ステージ分離
+          { offset: 65,    label: "Max Q (最大動圧点通過)" },
+          { offset: 135,   label: "第1段メインエンジン停止 (MECO)" },
+          { offset: 138,   label: "第1段・第2段分離 (Stage Separation)" },
+          { offset: 146,   label: "第2段エンジン点火 (SES-1)" },
+          { offset: 151,   label: "ブーストバック燃焼開始 (Boostback Burn)" },
+          { offset: 175,   label: "フェアリング分離 (Fairing Separation)" },
+          { offset: 205,   label: "ブーストバック燃焼終了" },
+          { offset: 364,   label: "第1段大気圏再突入バーン開始 (Entry Burn)" },
+          { offset: 373,   label: "第1段大気圏再突入バーン終了" },
+          { offset: 428,   label: "第1段着陸バーン開始 (Landing Burn)" },
+          { offset: 445,   label: "第1段着陸完了 (Landing / LZ-4)" },
+          { offset: 506,   label: "第2段エンジン停止 (SECO-1)" },
+          { offset: 3063,  label: "第2段エンジン再点火 (SES-2)" },
+          { offset: 3067,  label: "第2段エンジン停止 (SECO-2)" },
+
+          // ペイロード（衛星等）の順次展開フェーズ
+          { offset: 3262,  label: "SPRITE 展開 (NASA)" },
+          { offset: 3265,  label: "UASAT-NANO 展開 (EXOLAUNCH)" },
+          { offset: 3268,  label: "SATELIOT_6 展開 (EXOLAUNCH)" },
+          { offset: 3272,  label: "GHGSAT C19 AIDAN 展開 (SFL)" },
+          { offset: 3275,  label: "FLOCK 4J-18 展開 (SEOPS)" },
+          { offset: 3278,  label: "GOMX-5 展開 (EXOLAUNCH)" },
+          { offset: 3285,  label: "GHGSAT C18 ELEANOR 展開 (SFL)" },
+          { offset: 3291,  label: "CRIMSON-1 展開 (EXOLAUNCH)" },
+          { offset: 3294,  label: "KENSAT 展開 (EXOLAUNCH)" },
+          { offset: 3304,  label: "JACK-006 展開 (EXOLAUNCH)" },
+          { offset: 3314,  label: "LEMUR-2-MDQURESHI 展開 (EXOLAUNCH)" },
+          { offset: 3318,  label: "GYEONGGISAT-2A 展開 (EXOLAUNCH)" },
+          { offset: 3321,  label: "SATELIOT_5 展開 (EXOLAUNCH)" },
+          { offset: 3331,  label: "FLOCK 4J-17 展開 (SEOPS)" },
+          { offset: 3334,  label: "GPDM 展開 (NASA)" },
+          { offset: 3340,  label: "LEMUR-2-VARUN 展開 (EXOLAUNCH)" },
+          { offset: 3344,  label: "WATCHDOG V0-A 展開 (Maverick)" },
+          { offset: 3353,  label: "SATELIOT_8 展開 (EXOLAUNCH)" },
+          { offset: 3363,  label: "SATELIOT_7 展開 (EXOLAUNCH)" },
+          { offset: 3367,  label: "TOMORROW-S12 展開 (Tomorrow.io)" },
+          { offset: 3375,  label: "FOREST-20 ARAUCARIA 展開 (EXOLAUNCH)" },
+          { offset: 3378,  label: "LEMUR-2-WHITEHOTCREW 展開 (EXOLAUNCH)" },
+          { offset: 3381,  label: "GUARANISAT-2 展開 (SEOPS)" },
+          { offset: 3391,  label: "AE4LA 展開 (SEOPS)" },
+          { offset: 3404,  label: "BRO-23 展開 (EXOLAUNCH)" },
+          { offset: 3408,  label: "IRIDE-MS1-EAGLET-2-21 展開 (OHB Italia)" },
+          { offset: 3415,  label: "ELEAF-01 & SPACE BABY BIRD 展開 (SEOPS)" },
+          { offset: 3419,  label: "TOMORROW-S13 展開 (Tomorrow.io)" },
+          { offset: 3563,  label: "NEWSAT-57 展開 (Satellogic)" },
+          { offset: 3568,  label: "ION SCV ABSOLUTE ANDREAS 展開 (D-Orbit)" },
+          { offset: 3571,  label: "GNOMES-10 VIA MUON SPACE 展開" },
+          { offset: 3580,  label: "ICEYE-2 展開 (EXOLAUNCH)" },
+          { offset: 3594,  label: "ATHENE 1 SERANIS 展開 (OHB Orbital Access)" },
+          { offset: 3605,  label: "ION SCV EMPOWERING EKATERINA 展開" },
+          { offset: 3622,  label: "ICEYE-3 展開 (EXOLAUNCH)" },
+          { offset: 3626,  label: "OSSIE 展開 (UARX Space)" },
+          { offset: 3631,  label: "ICEYE-4 展開 (EXOLAUNCH)" },
+          { offset: 3634,  label: "BOB 展開 (D-Orbit)" },
+          { offset: 3657,  label: "F2G1 展開 (BAE Systems)" },
+          { offset: 3660,  label: "KEVIN 展開 (D-Orbit)" },
+          { offset: 3685,  label: "PROJECT SUNCATCHER M1 展開 (Planet Labs)" },
+          { offset: 3692,  label: "TANAGER-2 展開 (Planet Labs)" },
+          { offset: 3699,  label: "STUART 展開 (D-Orbit)" },
+          { offset: 3730,  label: "ION SCV ALLURING ALEXANDER 展開" },
+          { offset: 3741,  label: "ALTAIR-1 展開 (Loft Orbital)" },
+          { offset: 3782,  label: "ELEMENT-1 展開 (CesiumAstro)" },
+          { offset: 3786,  label: "SSPICY OTTER 展開 (Starfish Space)" },
+          { offset: 3804,  label: "REASON-1 展開 (Cowboy Space Corporation)" },
+          { offset: 3845,  label: "HOTSAT-3 展開 (Global SatellitevU Ltd.)" },
+          { offset: 3870,  label: "ICEYE-1 展開 (EXOLAUNCH)" },
+          { offset: 3891,  label: "STAR CATCHER PROTOSTAR 展開" },
+          { offset: 3896,  label: "W-9 展開 (Varda Space Industries)" },
+          { offset: 3915,  label: "W-8 展開 (Varda Space Industries)" }
+        ]
+      },
+      falcon9: {
+        name: "SpaceX Falcon 9",
+        prefix: "T",
+        timeline: [
+          { offset: -2100, label: "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
+          { offset: -420,  label: "Falcon 9 エンジン冷却 (Engine Chill)" },
+          { offset: -300,  label: "【Go/No-Go ポーリング】 発射管制ディレクター確認" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
+          { offset: -60,   label: "フライトコンピューター制御移行" },
+          { offset: -3,    label: "エンジン点火シーケンス開始" },
+          { offset: 0,     label: "リフトオフ (Liftoff)" },
+          { offset: 72,    label: "Max-Q (最大動圧点通過)" },
+          { offset: 147,   label: "MECO (第1段メインエンジン停止)" },
+          { offset: 151,   label: "第1段 / 第2段 分離" },
+          { offset: 158,   label: "SES-1 (第2段エンジン点火)" },
+          { offset: 200,   label: "ペロードフェアリング分離" },
+          { offset: 500,   label: "第1段 着陸バーン / ドローンシップ着陸" },
+          { offset: 520,   label: "SECO-1 (軌道投入)" }
+        ]
+      },
+      starship: {
+        name: "SpaceX Starship",
+        prefix: "T",
+        timeline: [
+          // カウントダウンシーケンス
+          { offset: -3000, label: "推進剤ローディングのGO判断 (Propellant Load Poll)" },
+          { offset: -2193, label: "ブースター 液体酸素(LOX)充填開始" },
+          { offset: -2100, label: "ブースター燃料 (液体メタン) 充填開始" },
+          { offset: -2053, label: "シップ 液体酸素(LOX)充填開始" },
+          { offset: -2051, label: "シップ燃料 (液体メタン) 充填開始" },
+          { offset: -1300, label: "ラプターエンジン冷却開始 (Engine Chill)" },
+          { offset: -170,  label: "ブースター推進剤充填完了" },
+          { offset: -130,  label: "シップ推進剤充填完了" },
+          { offset: -30,   label: "打ち上げのGO判断 (Flight Director Go for Launch)" },
+          { offset: -17,   label: "フレイム・ディバーター起動 (Flame Diverter Activation)" },
+          { offset: -3,    label: "ブースターエンジン点火コマンド" },
+          { offset: 0,     label: "リフトオフ！ (Excitement Guaranteed)" },
+          
+          // フライトタイムライン
+          { offset: 58,    label: "Max Q (最大動圧点通過)" },
+          { offset: 140,   label: "スーパーヘビー MECO (エンジン停止)" },
+          { offset: 142,   label: "ホットステージング (点火＆段間分離)" },
+          { offset: 147,   label: "スーパーヘビー ブーストバック燃焼開始" },
+          { offset: 187,   label: "スーパーヘビー ブーストバック燃焼終了" },
+          { offset: 396,   label: "スーパーヘビー 着陸バーン開始" },
+          { offset: 421,   label: "スーパーヘビー 着陸バーン終了" },
+          { offset: 491,   label: "スターシップ エンジン停止 (SECO)" },
+          { offset: 1517,  label: "スターシップ 軌道投入バーン開始" },
+          { offset: 1536,  label: "スターシップ 軌道投入バーン終了" },
+          { offset: 2047,  label: "ペイロード展開開始 (Starlink V3)" },
+          { offset: 3879,  label: "ペイロード展開完了" },
+          { offset: 31957, label: "逆噴射(デオービット)バーン開始" },
+          { offset: 31968, label: "逆噴射(デオービット)バーン終了" },
+          { offset: 34136, label: "スターシップ 大気圏再突入 (Entry)" },
+          { offset: 35249, label: "トランスソニック (超音速通過)" },
+          { offset: 35287, label: "サブソニック (亜音速)" },
+          { offset: 35411, label: "着陸バーン開始" },
+          { offset: 35413, label: "着陸フリップ機体反転" },
+          { offset: 35421, label: "着陸バーン：3基から2基へ移行" },
+          { offset: 35428, label: "着陸バーン：2基から1基へ移行" },
+          { offset: 35430, label: "エキサイティング・ランディング (着水完了)" }
+        ]
+      },
+      jaxa: {
+        name: "JAXA H3 / H-IIA",
+        prefix: "X",
+        timeline: [
+          { offset: -1800, label: "ターミナルカウントダウン準備" },
+          { offset: -480,  label: "【Go/No-Go コーリング】 発射管制長による最終確認" },
+          { offset: -270,  label: "自動カウントダウンシーケンス開始" },
+          { offset: -240,  label: "【Go for Launch】 発射管制最終承認" },
+          { offset: -3,    label: "LE-9 メインエンジン点火" },
+          { offset: 0,     label: "SRB-3 (固体ブースター) 点火 / 離昇 (Liftoff)" },
+          { offset: 80,    label: "Max-Q 通過" },
+          { offset: 116,   label: "SRB-3 分離" },
+          { offset: 210,   label: "衛星フェアリング分離" },
+          { offset: 296,   label: "MECO / 第1段・第2段分離" }
+        ]
+      },
+      ariane5_6: {
+        name: "ESA アリアン 5 / 6 (フランス/欧州)",
+        prefix: "H",
+        timeline: [
+          { offset: -1200, label: "クールクーラント供給および低温推進剤最終補充" },
+          { offset: -390,  label: "【Go/No-Go】 ギアナ宇宙センター発射管制確認" },
+          { offset: -300,  label: "自動発射シーケンス(SEQUENCE)開始" },
+          { offset: -7,    label: "バルカン / HM7B メインエンジン点火" },
+          { offset: 0,     label: "固体ブースター (P120C等) 点火・リフトオフ" },
+          { offset: 68,    label: "Max-Q (最大動圧点) 通過" },
+          { offset: 142,   label: "固体ブースター全基分離" },
+          { offset: 210,   label: "ペロードフェアリング投棄" },
+          { offset: 540,   label: "上段エンジン停止 (SECO) ・軌道投入完了" }
+        ]
+      },
+      pslv: {
+        name: "ISRO PSLV (インド極軌道打ち上げ)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン準備・機体各系最終点検" },
+          { offset: -300,  label: "【Go/No-Go】 サティシュ・ダワン宇宙センター確認" },
+          { offset: -60,   label: "自動ローンチシークエンス（ALS）へ移行" },
+          { offset: -2,    label: "第1段(S1)固体ロケットモーター点火前チェック" },
+          { offset: 0,     label: "第1段S1点火 ＆ 6基のストラップオンブースター点火・リフトオフ" },
+          { offset: 25,    label: "地上側ブースター分離" },
+          { offset: 70,    label: "空中ブースター分離 ＆ Max-Q通過" },
+          { offset: 110,   label: "第1段バーンアウト ＆ 第2段液体エンジン点火・分離" },
+          { offset: 160,   label: "ペイロードフェアリング分離" },
+          { offset: 300,   label: "第2段燃焼終了・第3段(固体)点火" }
+        ]
+      },
+      lvm3: {
+        name: "ISRO LVM3 (インド大型主力)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "カウントダウン・推進剤状況確認" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制の最終認証" },
+          { offset: -120,  label: "自動ローンチシーケンス開始" },
+          { offset: -4,    label: "L110コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S200固体ブースター点火・リフトオフ (Liftoff)" },
+          { offset: 70,    label: "Max-Q 到達" },
+          { offset: 128,   label: "S200 固体ブースター分離" },
+          { offset: 215,   label: "ペロードフェアリング分離" },
+          { offset: 300,   label: "L110 コアエンジン停止・分離" },
+          { offset: 310,   label: "C25 上段クライオジェニックエンジン点火" }
+        ]
+      },
+      sslv: {
+        name: "ISRO SSLV (インド小型衛星打ち上げ)",
+        prefix: "T",
+        timeline: [
+          { offset: -600,  label: "自律点検システムによる機体ヘルスチェック" },
+          { offset: -180,  label: "【Go/No-Go】 最終発射判断" },
+          { offset: -10,   label: "自動ローンチ・コントロール開始" },
+          { offset: 0,     label: "第1段(SS1)固体モーター点火・リフトオフ" },
+          { offset: 60,    label: "Max-Q 通過" },
+          { offset: 120,   label: "第1段分離 ＆ 第2段(SS2)点火" },
+          { offset: 200,   label: "ペイロードフェアリング分離" },
+          { offset: 280,   label: "第2段分離 ＆ 第3段(SS3)点火" },
+          { offset: 450,   label: "ベロシティ・トリミング・モジュール(VTM)展開" }
+        ]
+      },
+      gslv: {
+        name: "ISRO GSLV (インド静止衛星型)",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "極低温燃料・液体推進剤充填完了" },
+          { offset: -360,  label: "【Go/No-Go】 ミッション管制最終ポーリング" },
+          { offset: -60,   label: "自動打ち上げ制御シーケンスへ移行" },
+          { offset: -4.8,  label: "コアステージ液体エンジン点火" },
+          { offset: 0,     label: "S125固体ブースター4基点火・リフトオフ" },
+          { offset: 75,    label: "Max-Q 通過" },
+          { offset: 100,   label: "固体ブースター4基一斉分離" },
+          { offset: 270,   label: "大型フェアリング分離" },
+          { offset: 300,   label: "コアステージ分離 ＆ 上段クライオジェニック点火" }
+        ]
+      },
+      astra: {
+        name: "Astra ロケット 3 (民間ベンチャー)",
+        prefix: "T",
+        timeline: [
+          { offset: -600,  label: "自動タンク加圧および燃料(RP-1/LOX)充填完了" },
+          { offset: -120,  label: "最終「Go for Launch」システム自動認証" },
+          { offset: -10,   label: "発射管制コンピューター制御へ完全に移行" },
+          { offset: -3,    label: "Delphinエンジン 5基点火シーケンス" },
+          { offset: 0,     label: "リフトオフ (垂直上昇開始)" },
+          { offset: 35,    label: "Max-Q (最大動圧点) 通過" },
+          { offset: 175,   label: "MECO (第1段エンジン停止) ＆ 段間分離" },
+          { offset: 181,   label: "上段エンジン(Aether)点火" },
+          { offset: 200,   label: "フェアリング分離" }
+        ]
+      },
+      virginorbit: {
+        name: "Virgin Orbit LauncherOne (空中発射)",
+        prefix: "T",
+        timeline: [
+          { offset: -900,  label: "母機ボーイング747 (Cosmic Girl) 発射空域へ到達" },
+          { offset: -300,  label: "ミッションディレクターによる最終発射許可 (GO/NOGO)" },
+          { offset: -60,   label: "ランチャーワン内部バッテリー給電へ切替 ＆ 最終アーム" },
+          { offset: -10,   label: "投下前カウントダウン自動シーケンス" },
+          { offset: 0,     label: "ロケット投下 (Drop) ＆ 5秒後 第1段Newton三基点火" },
+          { offset: 30,    label: "Max-Q 通過" },
+          { offset: 185,   label: "第1段燃焼終了・分離 ＆ 第2段NewtonVac点火" },
+          { offset: 210,   label: "フェアリング分離" }
+        ]
+      },
+      longmarch: {
+        name: "CNSA 長征5号 (中国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1800, label: "極低温燃料(LOX/LH2)充填最終段階" },
+          { offset: -420,  label: "自動カウントダウンモード移行" },
+          { offset: -180,  label: "【Go/No-Go】 発射管制最終確認" },
+          { offset: -3,    label: "YF-77およびYF-100ブースター点火" },
+          { offset: 0,     label: "リフトオフ・文昌宇宙発射場離昇" },
+          { offset: 35,    label: "Max-Q 通過" },
+          { offset: 180,   label: "液体ブースター分離" },
+          { offset: 290,   label: "第1段エンジン停止・分離" },
+          { offset: 300,   label: "第2段点火・フェアリング分離" }
+        ]
+      },
+      nuri: {
+        name: "KARI ヌリ号 KSLV-II (韓国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "ナロ宇宙センター 最終点検" },
+          { offset: -300,  label: "【Go/No-Go】 発射管理委員会による最終発射許可" },
+          { offset: -10,   label: "自動ローンチシークエンス開始 (ALCS)" },
+          { offset: -3,    label: "75トン級液体エンジン プレファイヤー" },
+          { offset: 0,     label: "リフトオフ (Liftoff)" },
+          { offset: 50,    label: "Max-Q 通過" },
+          { offset: 127,   label: "第1段分離" },
+          { offset: 204,   label: "フェアリング分離" },
+          { offset: 425,   label: "第2段エンジン停止・軌道投入完了" }
+        ]
+      },
+      electron: {
+        name: "Rocket Lab エレクトロン (NZ / 米国)",
+        prefix: "T",
+        timeline: [
+          { offset: -1200, label: "RP-1 & 液体酸素 充填作業 (マヒア LC-1)" },
+          { offset: -300,  label: "【Go/No-Go】 発射管制官確認" },
+          { offset: -120,  label: "自律飛行システム (FTS) アーミング" },
+          { offset: -2,    label: "ラザフォードエンジン 電動ポンプ駆動開始" },
+          { offset: 0,     label: "エンジン点火・リフトオフ" },
+          { offset: 80,    label: "Max-Q 通過" },
+          { offset: 155,   label: "MECO (第1段エンジン停止)" },
+          { offset: 159,   label: "第1段・第2段分離" },
+          { offset: 163,   label: "キウイエンジン(第2段)点火" },
+          { offset: 180,   label: "フェアリング分離" }
+        ]
+      },
+      sls: {
+        name: "NASA SLS (Artemis)",
+        prefix: "T",
+        timeline: [
+          { offset: -14400, label: "コアステージ 極低温推進剤 充填開始" },
+          { offset: -3600,  label: "最終発射前点検 (Terminal Countdown 開始)" },
+          { offset: -900,   label: "【Go/No-Go ポーリング】 ミッションマネジメントチーム確認" },
+          { offset: -600,   label: "発射管制 最終GO" },
+          { offset: -30,    label: "ロケット自動シークエンス移行" },
+          { offset: -6,     label: "RS-25 メインエンジン3基 点火" },
+          { offset: 0,      label: "SRB (固体ロケットブースター) 点火・リフトオフ" },
+          { offset: 70,     label: "Max-Q 通過" },
+          { offset: 126,    label: "SRB 分離" },
+          { offset: 140,    label: "ローンチアボートシステム (LAS) 排出" },
+          { offset: 500,    label: "コアステージ本燃焼終了・メインエンジン停止" },
+          { offset: 540,    label: "コアステージ分離 / ICPS推進" }
+        ]
+      },
+      default: {
+        name: "標準ロケット プリセット",
+        prefix: "T",
+        timeline: [
+          { offset: -900, label: "ターミナルカウントダウン開始" },
+          { offset: -300, label: "【Go/No-Go ポーリング】 発射可否の最終確認" },
+          { offset: -240, label: "【Go for Launch】 発射管制最終承認" },
+          { offset: -180, label: "自動シーケンス開始" },
+          { offset: 0,    label: "リフトオフ / メインエンジン点火" },
+          { offset: 60,   label: "Max-Q 通過" }
+        ]
+      }
+    };
+
