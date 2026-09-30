@@ -388,30 +388,33 @@
 
     // GitHubからのデータ読み込み関数
     async function fetchFromGithub() {
-      const url = document.getElementById('githubUrlInput').value.trim();
-      if (!url) {
+      const targetUrl = document.getElementById('githubUrlInput').value.trim();
+      if (!targetUrl) {
         alert('URLを入力してください。');
         return;
       }
+  
+     // CORSプロキシを経由して取得するURLに変換
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
       try {
-        const response = await fetch(url);
+        const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
         let text = await response.text();
-        
-        // "const sequencePresets = " などのJS宣言が含まれていてもパースできるように処理
+    
         text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
         const parsed = JSON.parse(text);
-        
+    
         if (typeof parsed === 'object' && parsed !== null) {
           sequencePresets = parsed;
           const firstKey = Object.keys(sequencePresets)[0];
           if (firstKey) {
             selectPreset(firstKey);
           }
-          alert('GitHubから最新の `sequences.js` を正常に読み込みました！');
+          alert('GitHubから最新のデータを正常に読み込みました！');
         }
       } catch (err) {
-        alert('GitHubからの読み込みに失敗しました。\n※CORSポリシーによりブラウザから直接取得できない場合は、ファイルをダウンロードして「ファイルから読込」をご利用ください。\n\nエラー: ' + err.message);
+        alert('読み込みに失敗しました。「ファイルから読込」をご利用ください。\n\nエラー: ' + err.message);
       }
     }
 
