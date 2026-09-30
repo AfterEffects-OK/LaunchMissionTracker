@@ -568,28 +568,6 @@
     let missionState = "RUNNING";
     let heldSeconds = -10;
     let liveTelemetryCache = null;
-    
-    // スプレッドシート（GAS）から取得したプリセットデータを格納する変数
-    let sequencePresets = { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
-    const GAS_API_URL = "【ここにApps ScriptのウェブアプリURLを入力してください】";
-
-    // スプレッドシートからデータを非同期で取得する関数
-    async function loadPresetsFromGAS() {
-      try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyx693J5GdK0IpqyKU7ZPwlkPhvReBbbjP5FiJdDndwuf19tHgXV7xX536VWA_5Rsbp1w/exec');
-        const result = await response.json();
-        if (result.status === 'success' && result.data) {
-          sequencePresets = result.data;
-          console.log("スプレッドシートからプリセットを読み込みました", sequencePresets);
-        }
-      } catch (e) {
-        console.warn("GASからのプリセット読み込みに失敗しました。フォールバックを使用します。", e);
-      }
-      
-      // データ取得完了後に初期化・描画を実行
-      renderLaunchList();
-      selectLaunch(0);
-    }
 
     async function syncLaunchesFromAPI() {
       const btn = document.getElementById('apiSyncBtn');
@@ -628,10 +606,12 @@
       setTimeout(() => { btn.textContent = "API同期"; }, 3000);
     }
 
+    // sequences.js の sequencePresets からデータを取得して返すように実装
     function getSequencePreset(launch) {
-      const presets = sequencePresets;
+      // 万が一 sequences.js が読み込まれていない場合の安全策
+      const presets = typeof sequencePresets !== 'undefined' ? sequencePresets : { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
+
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
-      
       if (text.includes("transporter-18") || text.includes("transporter 18")) return JSON.parse(JSON.stringify(presets.transporter18 || presets.default));
       if (text.includes("crew-13") || text.includes("crew13") || text.includes("dragon")) return JSON.parse(JSON.stringify(presets.crew13 || presets.default));
       if (text.includes("ariane") || text.includes("アリアン") || text.includes("kourou") || text.includes("フランス")) return JSON.parse(JSON.stringify(presets.ariane5_6 || presets.default));
@@ -641,7 +621,7 @@
       if (text.includes("gslv")) return JSON.parse(JSON.stringify(presets.gslv || presets.default));
       if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(presets.astra || presets.default));
       if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(presets.virginorbit || presets.default));
-      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets.h3_24 || presets.default));
+      if (text.includes("H3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets.h3_24 || presets.default));
       if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("starship")) return JSON.parse(JSON.stringify(presets.starship || presets.default));
       if (text.includes("heavy")) return JSON.parse(JSON.stringify(presets.falconheavy || presets.default)); 
@@ -650,7 +630,6 @@
       if (text.includes("nuri") || text.includes("ヌリ") || text.includes("kari") || text.includes("naro")) return JSON.parse(JSON.stringify(presets.nuri || presets.default));
       if (text.includes("electron") || text.includes("rocket lab") || text.includes("mahia") || text.includes("ニュージーランド")) return JSON.parse(JSON.stringify(presets.electron || presets.default));
       if (text.includes("sls") || text.includes("artemis") || text.includes("nasa")) return JSON.parse(JSON.stringify(presets.sls || presets.default));
-      
       return JSON.parse(JSON.stringify(presets.default));
     }
 
@@ -707,8 +686,6 @@
 
     function renderTimeline(currentDiff) {
       const list = document.getElementById('timelineList');
-      if (!list || !currentPreset || !currentPreset.timeline) return;
-      
       list.innerHTML = '';
       let currentEvent = "---";
       let nextEvent = "---";
@@ -722,10 +699,10 @@
           const nextItem = currentPreset.timeline[index + 1];
           if (!nextItem || currentDiff < nextItem.offset) {
             div.classList.add('active');
-            currentEvent = item.text || item.label;
+            currentEvent = item.label;
             activeElement = div;
             if (nextItem) {
-              nextEvent = nextItem.text || nextItem.label;
+              nextEvent = nextItem.label;
               nextEventRemainingSeconds = nextItem.offset - currentDiff;
             } else {
               nextEvent = "全シーケンス完了";
@@ -734,13 +711,13 @@
             div.classList.add('passed');
           }
         }
-        div.innerHTML = `<span class="time-offset">${formatTime(item.offset)}</span><span>${item.text || item.label}</span>`;
+        div.innerHTML = `<span class="time-offset">${formatTime(item.offset)}</span><span>${item.label}</span>`;
         list.appendChild(div);
       });
 
       if (currentPreset.timeline.length > 0 && currentDiff < currentPreset.timeline[0].offset) {
         currentEvent = "カウントダウン準備中";
-        nextEvent = currentPreset.timeline[0].text || currentPreset.timeline[0].label;
+        nextEvent = currentPreset.timeline[0].label;
         nextEventRemainingSeconds = currentPreset.timeline[0].offset - currentDiff;
         activeElement = list.firstElementChild;
       }
@@ -761,7 +738,6 @@
     }
 
     function updateDisplay() {
-      if (!currentPreset) return;
       const launch = mockLaunches[selectedIndex];
       let diffSeconds = 0;
       if (missionState === "SCRUBBED" || missionState === "HOLD") {
@@ -851,6 +827,7 @@
       document.getElementById('missionSub').textContent = `${launch.provider} • ${launch.rocket} • ${launch.pad}`;
       document.getElementById('targetTime').textContent = `Target NET: ${new Date(launch.net).toLocaleString()}`;
 
+      // 打ち上げウィンドウの表示設定
       const windowEl = document.getElementById('launchWindow');
       if (launch.window_start && launch.window_end) {
         const startStr = new Date(launch.window_start).toLocaleString();
@@ -860,6 +837,7 @@
         windowEl.textContent = `Launch Window: 即時ウィンドウ (Instantaneous)`;
       }
 
+      // ライブ配信リンクの表示制御
       const liveContainer = document.getElementById('liveLinkContainer');
       const liveBtn = document.getElementById('liveLinkBtn');
       if (launch.webcast_live && launch.webcast_live.trim() !== "") {
@@ -920,7 +898,7 @@
       updateDisplay();
     });
     document.getElementById('editBtn').addEventListener('click', () => {
-      document.getElementById('jsonInput').value = currentPreset.timeline.map(item => `${item.offset}, ${item.text || item.label}`).join('\n');
+      document.getElementById('jsonInput').value = currentPreset.timeline.map(item => `${item.offset}, ${item.label}`).join('\n');
       document.getElementById('editModal').classList.add('open');
     });
     document.getElementById('cancelEdit').addEventListener('click', () => {
@@ -934,7 +912,7 @@
         if (parts.length >= 2) {
           const offset = parseInt(parts[0].trim(), 10);
           const label = parts.slice(1).join(',').trim();
-          if (!isNaN(offset) && label) newTimeline.push({ offset, text: label, label: label });
+          if (!isNaN(offset) && label) newTimeline.push({ offset, label });
         }
       });
       newTimeline.sort((a, b) => a.offset - b.offset);
@@ -947,8 +925,8 @@
       }
     });
 
-    // 起動時にスプレッドシート（GAS）からデータを読み込む
-    loadPresetsFromGAS();
+    renderLaunchList();
+    selectLaunch(0);
   </script>
 </body>
 </html>
