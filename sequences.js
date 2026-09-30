@@ -370,7 +370,7 @@
           { offset: 540,    label: "コアステージ分離 / ICPS推進" }
         ]
       },
-      falconHeavy: {
+      falconheavy: {
           "name": "SpaceX Falcon Heavy (NROL-97)",
           "prefix": "T",
           "timeline": [
