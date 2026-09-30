@@ -184,7 +184,7 @@
           { offset: 35430, label: "エキサイティング・ランディング (着水完了)" }
         ]
       },
-      jaxa: {
+      h3-24: {
         name: "JAXA H3 Launch Vehicle (Flight 4)",
         prefix: "X",
         timeline: [
