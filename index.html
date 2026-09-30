@@ -621,7 +621,7 @@
       if (text.includes("gslv")) return JSON.parse(JSON.stringify(presets.gslv || presets.default));
       if (text.includes("astra") || text.includes("アストラ")) return JSON.parse(JSON.stringify(presets.astra || presets.default));
       if (text.includes("virgin") || text.includes("バージン") || text.includes("launcherone")) return JSON.parse(JSON.stringify(presets.virginorbit || presets.default));
-      if (text.includes("h3-24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets["H3-24"] || presets.default));
+      if (text.includes("h3_24") || text.includes("h3 / 24")) return JSON.parse(JSON.stringify(presets.h3_24 || presets.default));
       if (text.includes("jaxa") || text.includes("h3") || text.includes("tanegashima")) return JSON.parse(JSON.stringify(presets.jaxa || presets.default));
       if (text.includes("starship")) return JSON.parse(JSON.stringify(presets.starship || presets.default));
       if (text.includes("heavy")) return JSON.parse(JSON.stringify(presets.falconheavy || presets.default)); 
