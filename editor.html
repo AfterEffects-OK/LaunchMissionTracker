@@ -70,7 +70,7 @@
       align-items: center;
     }
 
-    button, input, select {
+    button, input, select, a.btn-link {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border-color);
       color: var(--text-main);
@@ -79,15 +79,18 @@
       outline: none;
       font-size: 0.9rem;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
       transition: all 0.2s ease;
     }
 
-    button {
+    button, a.btn-link {
       background: rgba(0, 242, 255, 0.15);
       font-weight: bold;
     }
 
-    button:hover {
+    button:hover, a.btn-link:hover {
       background: var(--accent-blue);
       color: #000;
       box-shadow: 0 0 10px var(--accent-glow);
@@ -299,6 +302,8 @@
     <header>
       <h1>Sequence Presets Editor</h1>
       <div class="header-actions">
+        <!-- メイン画面へ移動するボタン -->
+        <a href="./" class="btn-link">🚀 メイン画面へ移動</a>
         <button class="btn-success" id="exportBtn">📥 sequence.js を出力</button>
         <button id="importBtn">📤 ファイルから読込</button>
         <input type="file" id="importFile" style="display: none;" accept=".js,.json">
@@ -386,60 +391,54 @@
 
     let currentSelectedKey = null;
 
-    // GitHubからのデータ読み込み関数
+    // GitHubからのデータ読み込み関数（ローカルの sequences.js を優先、失敗時はRawから取得を試みる）
     async function fetchFromGithub() {
-  const url = './sequences.js';
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
-    let text = await response.text();
-    
-    let parsed = null;
-
-    // パターン1:そのままJSONとしてパースを試す
-    try {
-      parsed = JSON.parse(text);
-    } catch (e1) {
-      // パターン2: "const sequencePresets = " などを柔軟に削除してパースを試す
-      try {
-        // 変数代入の記述を除去
-        let cleaned = text.replace(/^(const|let|var)\s+[\w$]+\s*=\s*/, '');
-        // 末尾のセミコロンや余計な空白を削除
-        cleaned = cleaned.trim().replace(/;\s*$/, '');
-        parsed = JSON.parse(cleaned);
-      } catch (e2) {
-        // パターン3: JavaScriptオブジェクトとして安全に評価する（最終手段）
+      const urls = ['./sequences.js', document.getElementById('githubUrlInput').value.trim()];
+      
+      for (const url of urls) {
+        if (!url) continue;
         try {
-          const evalFunc = new Function(`${text}; return sequencePresets;`);
-          parsed = evalFunc();
-        } catch (e3) {
-          throw new Error('すべてのパース方式で失敗しました。');
+          const response = await fetch(url);
+          if (!response.ok) continue;
+          let text = await response.text();
+          
+          text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
+          const parsed = JSON.parse(text);
+          
+          if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) {
+            sequencePresets = parsed;
+            const firstKey = Object.keys(sequencePresets)[0];
+            if (firstKey) {
+              selectPreset(firstKey);
+            }
+            console.log('データを正常に読み込みました:', url);
+            return;
+          }
+        } catch (err) {
+          // 次のURLを試す
         }
       }
+      console.warn('自動読み込みに失敗しました。ファイルから読み込んでください。');
     }
-    
-    if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) {
-      sequencePresets = parsed;
-      const firstKey = Object.keys(sequencePresets)[0];
-      if (firstKey) {
-        selectPreset(firstKey);
-      }
-      console.log('sequences.js を正常に読み込みました！', sequencePresets);
-    } else {
-      throw new Error('読み込んだデータが空か、オブジェクトではありません。');
-    }
-  } catch (err) {
-    console.warn('自動読み込みに失敗しました。', err.message);
-    // 失敗した場合はフォールバックとして最初のデフォルトプリセットを表示
-    const keys = Object.keys(sequencePresets);
-    if (keys.length > 0) {
-      selectPreset(keys[0]);
-    }
-  }
-}
 
-    document.getElementById('fetchGithubBtn').addEventListener('click', fetchFromGithub);
+    document.getElementById('fetchGithubBtn').addEventListener('click', async () => {
+      const url = document.getElementById('githubUrlInput').value.trim();
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+        let text = await response.text();
+        text = text.replace(/const\s+sequencePresets\s*=\s*/, '').replace(/;\s*$/, '');
+        const parsed = JSON.parse(text);
+        if (typeof parsed === 'object' && parsed !== null) {
+          sequencePresets = parsed;
+          const firstKey = Object.keys(sequencePresets)[0];
+          if (firstKey) selectPreset(firstKey);
+          alert('GitHubから最新データを正常に読み込みました！');
+        }
+      } catch (err) {
+        alert('読み込みに失敗しました（CORS制限等の可能性があります）。「ファイルから読込」をご利用ください。');
+      }
+    });
 
     function renderPresetList() {
       const container = document.getElementById('presetList');
@@ -644,7 +643,7 @@
       reader.readAsText(file);
     });
 
-    // 起動時に自動でGitHubからの読み込みを試す
+    // 起動時の読み込み実行
     fetchFromGithub();
   </script>
 </body>
