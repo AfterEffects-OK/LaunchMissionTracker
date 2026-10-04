@@ -573,24 +573,32 @@
       const btn = document.getElementById('apiSyncBtn');
       btn.textContent = "同期中...";
       try {
-        const response = await fetch('https://lldev.thespacedevs.com/2.2.0/launch/upcoming/?limit=10', {
+        // RocketLaunch.Live のAPIエンドポイントに変更
+        const response = await fetch('https://fletch.rocketlaunch.live/json/launches', {
           method: 'GET',
           headers: { 'Accept': 'application/json' }
         });
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
         const data = await response.json();
+        
+        // RocketLaunch.Live のレスポンス構造（results配列など）に合わせてマッピング
         if (data && data.results && data.results.length > 0) {
           mockLaunches = data.results.map((item, index) => ({
-            id: item.id || String(index + 1),
+            id: String(item.id || index + 1),
             name: item.name || "Unknown Mission",
-            provider: item.launch_service_provider?.name || "Unknown Provider",
-            rocket: item.rocket?.configuration?.name || "Rocket",
+            // provider や vehicle などのプロパティ構造に合わせる
+            provider: item.provider?.name || "Unknown Provider",
+            rocket: item.vehicle?.name || "Rocket",
             pad: item.pad?.name || "Launch Pad",
-            net: item.net || new Date().toISOString(),
-            window_start: item.window_start || "",
-            window_end: item.window_end || "",
-            webcast_live: item.vidURLs && item.vidURLs.length > 0 ? item.vidURLs[0].url : (item.webcast_live || "")
+            // 打ち上げ予定日時のプロパティ（t0 または win_open）
+            net: item.t0 || item.win_open || new Date().toISOString(),
+            window_start: item.win_open || "",
+            window_end: item.win_close || "",
+            // 天気情報のプロパティなどがあればここで保持・活用することも可能
+            weather: item.weather_summary || "",
+            webcast_live: item.media?.[0]?.url || ""
           }));
+          
           mockLaunches.sort((a, b) => new Date(a.net) - new Date(b.net));
           selectedIndex = 0;
           renderLaunchList();
