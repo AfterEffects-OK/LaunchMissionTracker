@@ -479,15 +479,24 @@
       <h1>Launch Mission Tracker</h1>
       <div class="controls">
         <!-- 1行目: 進行・状態制御 ＆ 時刻設定 -->
-        <div class="control-row">
-          <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
-          <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
-          <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
-          
-          <input type="datetime-local" id="netInput" step="1" style="padding: 2px 0px 2px 4px; height: 32px; font-size: 0.85rem;">
-          <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
-          <label for="delayInput" style="font-size: 0.8rem; color: var(--text-muted);">配信遅延(秒):</label>
-          <input type="number" id="delayInput" value="0" min="-3600" max="3600" style="width: 70px; padding: 6px 8px; font-size: 0.85rem;">
+        <div class="edit-modal" id="holdRestartModal">
+          <div class="modal-content" style="max-width: 400px;">
+            <h3>カウントダウン再開設定</h3>
+            <p style="margin: 10px 0; font-size: 0.9rem; color: var(--text-muted);">
+              再開時のカウントダウン位置（T- / T+ 秒）を指定してください。
+            </p>
+        
+            <!-- 指定用の入力フォーム -->
+            <div style="display: flex; gap: 8px; align-items: center; margin: 15px 0;">
+              <label style="font-size: 0.9rem;">T- 秒数:</label>
+              <input type="number" id="restartSecondsInput" style="flex: 1; padding: 6px 10px; font-size: 0.95rem;">
+            </div>
+        
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+              <button id="cancelHoldRestart">キャンセル</button>
+              <button id="confirmHoldRestart" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">設定してRESTART</button>
+            </div>
+          </div>
         </div>
       
         <!-- 2行目: 編集・エディター系ナビゲーション -->
@@ -947,47 +956,55 @@
     });
     document.getElementById('holdBtn').addEventListener('click', () => {
       if (missionState === "SCRUBBED") return;
+
       if (missionState === "HOLD") {
-        missionState = "RUNNING";
-        document.getElementById('holdBtn').textContent = "HOLD";
-        document.getElementById('holdBtn').style.background = "rgba(255, 170, 0, 0.15)";
+        // HOLD 解除時：秒数調整用のモーダルを開く
+        document.getElementById('restartSecondsInput').value = heldSeconds;
+        document.getElementById('holdRestartModal').classList.add('open');
       } else {
+        // HOLD 開始時
         missionState = "HOLD";
-        document.getElementById('holdBtn').textContent = "RESUME";
+        document.getElementById('holdBtn').textContent = "RESTART";
         document.getElementById('holdBtn').style.background = "rgba(0, 255, 128, 0.15)";
-      }
-      updateDisplay();
-    });
-    document.getElementById('scrubBtn').addEventListener('click', () => {
-      missionState = "SCRUBBED";
-      updateDisplay();
-    });
-    document.getElementById('editBtn').addEventListener('click', () => {
-      document.getElementById('jsonInput').value = currentPreset.timeline.map(item => `${item.offset}, ${item.label}`).join('\n');
-      document.getElementById('editModal').classList.add('open');
-    });
-    document.getElementById('cancelEdit').addEventListener('click', () => {
-      document.getElementById('editModal').classList.remove('open');
-    });
-    document.getElementById('saveEdit').addEventListener('click', () => {
-      const lines = document.getElementById('jsonInput').value.split('\n');
-      const newTimeline = [];
-      lines.forEach(line => {
-        const parts = line.split(',');
-        if (parts.length >= 2) {
-          const offset = parseInt(parts[0].trim(), 10);
-          const label = parts.slice(1).join(',').trim();
-          if (!isNaN(offset) && label) newTimeline.push({ offset, label });
-        }
-      });
-      newTimeline.sort((a, b) => a.offset - b.offset);
-      if (newTimeline.length > 0) {
-        currentPreset.timeline = newTimeline;
-        document.getElementById('editModal').classList.remove('open');
+        document.getElementById('holdBtn').style.borderColor = "#00ff80";
         updateDisplay();
-      } else {
-        alert('有効なシーケンス行がありません。「秒数, イベント名」の形式で入力してください。');
       }
+    });
+
+    // HOLD再開モーダルのボタン処理
+    document.getElementById('cancelHoldRestart').addEventListener('click', () => {
+      document.getElementById('holdRestartModal').classList.remove('open');
+    });
+
+    document.getElementById('confirmHoldRestart').addEventListener('click', () => {
+      const inputVal = parseInt(document.getElementById('restartSecondsInput').value, 10);
+
+      if (!isNaN(inputVal)) {
+        heldSeconds = inputVal;
+
+        if (!isSimMode) {
+          // リアルタイムモード：修正後の T- 秒数に合わせて Target NET（打ち上げ時刻）を再計算
+          const launch = mockLaunches[selectedIndex];
+          const now = new Date();
+          const newNetTime = new Date(now.getTime() - (heldSeconds * 1000));
+          launch.net = newNetTime.toISOString();
+          
+          if (typeof updateTimeInputFromLaunch === 'function') {
+            updateTimeInputFromLaunch(launch);
+          }
+        } else {
+          // シミュレーションモード
+          simT = heldSeconds;
+        }
+      }
+
+      missionState = "RUNNING";
+      document.getElementById('holdBtn').textContent = "HOLD";
+      document.getElementById('holdBtn').style.background = "rgba(255, 170, 0, 0.15)";
+      document.getElementById('holdBtn').style.borderColor = "#ffaa00";
+
+      document.getElementById('holdRestartModal').classList.remove('open');
+      updateDisplay();
     });
 
     renderLaunchList();
