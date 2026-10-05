@@ -575,18 +575,24 @@
     </div>
   </div>
 
-  <!-- HOLD再開（秒数調整）モーダル -->
+  <!-- HOLD再開（分・秒指定）モーダル -->
   <div class="edit-modal" id="holdRestartModal">
-    <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-content" style="max-width: 420px;">
       <h3>カウントダウン再開設定</h3>
       <p style="margin: 10px 0; font-size: 0.85rem; color: var(--text-muted);">
-        再開時のカウントダウン位置（秒数）を指定してください。<br>
-        ※ T- 10分の場合は「-600」と入力します。
+        再開時のカウントダウン位置を指定してください。<br>
+        ※ T- 10分00秒の場合は「分: -10」「秒: 0」と入力します。
       </p>
   
-      <div style="display: flex; gap: 8px; align-items: center; margin: 15px 0;">
-        <label style="font-size: 0.85rem; white-space: nowrap;">カウントダウン(秒):</label>
-        <input type="number" id="restartSecondsInput" style="flex: 1; padding: 6px 10px; font-size: 0.9rem;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center; margin: 20px 0;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <input type="number" id="restartMinutesInput" value="0" style="width: 80px; padding: 6px; font-size: 1rem; text-align: center;">
+          <span style="font-size: 0.9rem;">分</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <input type="number" id="restartSecondsInput" value="0" min="-59" max="59" style="width: 80px; padding: 6px; font-size: 1rem; text-align: center;">
+          <span style="font-size: 0.9rem;">秒</span>
+        </div>
       </div>
   
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -970,15 +976,22 @@
       document.getElementById('simBtn').style.borderColor = isSimMode ? '#00f2ff' : 'rgba(0, 242, 255, 0.2)';
       updateDisplay();
     });
+    // HOLD ボタン押下時
     document.getElementById('holdBtn').addEventListener('click', () => {
       if (missionState === "SCRUBBED") return;
-
+    
       if (missionState === "HOLD") {
-        // HOLD 解除時：秒数調整用のモーダルを開く
-        document.getElementById('restartSecondsInput').value = heldSeconds;
+        // 現在の heldSeconds を「分」と「秒」に分解してフォームにセット
+        const isNegative = heldSeconds < 0;
+        const absSec = Math.abs(heldSeconds);
+        const m = Math.floor(absSec / 60);
+        const s = absSec % 60;
+    
+        document.getElementById('restartMinutesInput').value = isNegative ? -m : m;
+        document.getElementById('restartSecondsInput').value = isNegative ? -s : s;
+    
         document.getElementById('holdRestartModal').classList.add('open');
       } else {
-        // HOLD 開始時
         missionState = "HOLD";
         document.getElementById('holdBtn').textContent = "RESTART";
         document.getElementById('holdBtn').style.background = "rgba(0, 255, 128, 0.15)";
@@ -986,39 +999,44 @@
         updateDisplay();
       }
     });
-
-    // HOLD再開モーダルのボタン処理
-    document.getElementById('cancelHoldRestart').addEventListener('click', () => {
-      document.getElementById('holdRestartModal').classList.remove('open');
-    });
-
+    
+    // モーダルの「修正してRESTART」押下時
     document.getElementById('confirmHoldRestart').addEventListener('click', () => {
-      const inputVal = parseInt(document.getElementById('restartSecondsInput').value, 10);
-
-      if (!isNaN(inputVal)) {
-        heldSeconds = inputVal;
-
-        if (!isSimMode) {
-          // リアルタイムモード：修正後の T- 秒数に合わせて Target NET（打ち上げ時刻）を再計算
-          const launch = mockLaunches[selectedIndex];
-          const now = new Date();
-          const newNetTime = new Date(now.getTime() - (heldSeconds * 1000));
-          launch.net = newNetTime.toISOString();
-          
-          if (typeof updateTimeInputFromLaunch === 'function') {
-            updateTimeInputFromLaunch(launch);
-          }
-        } else {
-          // シミュレーションモード
-          simT = heldSeconds;
-        }
+      const mins = parseInt(document.getElementById('restartMinutesInput').value, 10) || 0;
+      const secs = parseInt(document.getElementById('restartSecondsInput').value, 10) || 0;
+    
+      // 入力された分・秒を合計秒数に変換
+      // 分が負の値（T-指定）の場合は秒も負方向に合わせる
+      let totalSeconds = 0;
+      if (mins < 0) {
+        totalSeconds = (mins * 60) - Math.abs(secs);
+      } else if (mins === 0 && (Object.is(mins, -0) || secs < 0)) {
+        totalSeconds = -Math.abs(secs);
+      } else {
+        totalSeconds = (mins * 60) + secs;
       }
-
+    
+      heldSeconds = totalSeconds;
+    
+      if (!isSimMode) {
+        // リアルタイムモード：新しい T- 秒数に合わせて Target NET を更新
+        const launch = mockLaunches[selectedIndex];
+        const now = new Date();
+        const newNetTime = new Date(now.getTime() - (heldSeconds * 1000));
+        launch.net = newNetTime.toISOString();
+    
+        if (typeof updateTimeInputFromLaunch === 'function') {
+          updateTimeInputFromLaunch(launch);
+        }
+      } else {
+        simT = heldSeconds;
+      }
+    
       missionState = "RUNNING";
       document.getElementById('holdBtn').textContent = "HOLD";
       document.getElementById('holdBtn').style.background = "rgba(255, 170, 0, 0.15)";
       document.getElementById('holdBtn').style.borderColor = "#ffaa00";
-
+    
       document.getElementById('holdRestartModal').classList.remove('open');
       updateDisplay();
     });
