@@ -487,7 +487,6 @@
           <input type="datetime-local" id="netInput" step="1" style="padding: 2px 0px 2px 4px; height: 32px; font-size: 0.85rem;">
           <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
         
-          <!-- ▼ 配信遅延入力フォームを追加 -->
           <div style="display: flex; align-items: center; gap: 4px; margin-left: 6px;">
             <label for="delayInput" style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">配信遅延(秒):</label>
             <input type="number" id="delayInput" value="0" min="-3600" max="3600" style="width: 60px; padding: 2px 4px; height: 32px; font-size: 0.85rem; text-align: center;">
@@ -529,7 +528,6 @@
           <div id="launchWindow"></div>
         </div>
 
-        <!-- ライブ配信リンク自動表示用コンテナ -->
         <div class="live-link-container" id="liveLinkContainer">
           <a id="liveLinkBtn" class="live-link-btn" href="https://www.spacex.com/launches/crew13" target="_blank" rel="noopener noreferrer">🔴 公式ライブ配信を視聴 (Crew-13)</a>
         </div>
@@ -580,7 +578,6 @@
     </div>
   </div>
 
-  <!-- HOLD再開（分・秒指定）モーダル -->
   <div class="edit-modal" id="holdRestartModal">
     <div class="modal-content" style="max-width: 420px;">
       <h3>カウントダウン再開設定</h3>
@@ -607,10 +604,8 @@
     </div>
   </div>
 
-  <!-- ① 先に external な sequences.js を読み込む -->
   <script src="sequences.js"></script>
 
-  <!-- ② メインプログラム -->
   <script>
     let mockLaunches = [
       { id: "1", name: "Crew-13 (Dragon Mission)", provider: "SpaceX", rocket: "Crew-13", pad: "Kennedy Space Center / LC-39A", net: "2026-10-05T08:00:00Z", window_start: "2026-10-05T08:00:00Z", window_end: "2026-10-05T12:00:00Z", webcast_live: "https://www.spacex.com/launches/crew13" },
@@ -670,7 +665,6 @@
       }
     }
 
-    // 日時変更ボタンの処理
     document.getElementById('updateNetBtn').addEventListener('click', () => {
       const inputVal = document.getElementById('netInput').value;
       if (!inputVal) return;
@@ -916,7 +910,6 @@
       document.getElementById('missionSub').textContent = `${launch.provider} • ${launch.rocket} • ${launch.pad}`;
       document.getElementById('targetTime').textContent = `Target NET: ${new Date(launch.net).toLocaleString()}`;
 
-      // 打ち上げウィンドウの表示設定
       const windowEl = document.getElementById('launchWindow');
       if (launch.window_start && launch.window_end) {
         const startStr = new Date(launch.window_start).toLocaleString();
@@ -926,7 +919,6 @@
         windowEl.textContent = `Launch Window: 即時ウィンドウ (Instantaneous)`;
       }
 
-      // サムネイル画像の表示設定
       const thumbEl = document.getElementById('missionThumb');
       if (thumbEl) {
         if (launch.image) {
@@ -937,7 +929,6 @@
         }
       }
 
-      // ライブ配信 / Next Spaceflight リンクの表示設定
       const liveContainer = document.getElementById('liveLinkContainer');
       const liveBtn = document.getElementById('liveLinkBtn');
       const targetUrl = launch.nextSpaceflightUrl || launch.webcast_live;
@@ -1006,6 +997,18 @@
         updateDisplay();
       }
     });
+
+    // SCRUB ボタン押下時（追加）
+    document.getElementById('scrubBtn').addEventListener('click', () => {
+      if (missionState === "SCRUBBED") {
+        missionState = "RUNNING";
+        document.getElementById('scrubBtn').style.background = "rgba(255, 68, 68, 0.15)";
+      } else {
+        missionState = "SCRUBBED";
+        document.getElementById('scrubBtn').style.background = "rgba(255, 68, 68, 0.4)";
+      }
+      updateDisplay();
+    });
     
     // モーダルの「修正してRESTART」押下時
     document.getElementById('confirmHoldRestart').addEventListener('click', () => {
@@ -1045,7 +1048,28 @@
       updateDisplay();
     });
 
-    // モーダルのキャンセル処理など
+    // シーケンス編集モーダルの処理
+    document.getElementById('editBtn').addEventListener('click', () => {
+      document.getElementById('jsonInput').value = JSON.stringify(currentPreset, null, 2);
+      document.getElementById('editModal').classList.add('open');
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', () => {
+      document.getElementById('editModal').classList.remove('open');
+    });
+
+    document.getElementById('saveEdit').addEventListener('click', () => {
+      try {
+        const newPreset = JSON.parse(document.getElementById('jsonInput').value);
+        currentPreset = newPreset;
+        document.getElementById('editModal').classList.remove('open');
+        updateDisplay();
+      } catch (err) {
+        alert('JSONの形式が正しくありません: ' + err.message);
+      }
+    });
+
+    // モーダルのキャンセル処理
     document.getElementById('cancelHoldRestart')?.addEventListener('click', () => {
       document.getElementById('holdRestartModal').classList.remove('open');
     });
