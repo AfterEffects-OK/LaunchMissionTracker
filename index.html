@@ -464,13 +464,18 @@
     <header>
       <h1>Launch Mission Tracker</h1>
       <div class="controls">
-        <a href="./editor.html" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
-        <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
-        <button id="simBtn">シミュレーション切替</button>
-        <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
-        <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
-        <button id="editBtn">シーケンス編集</button>
-      </div>
+      <a href="./editor.html" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
+      <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
+      <button id="simBtn">シミュレーション切替</button>
+      <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
+      <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
+      
+      <!-- ▼ リフトオフ時刻変更（入力フォーム＋適用ボタン） ▼ -->
+      <input type="datetime-local" id="netInput" style="padding: 6px 10px; font-size: 0.85rem;">
+      <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
+    
+      <button id="editBtn">シーケンス編集</button>
+    </div>
     </header>
 
     <div class="main-grid">
@@ -604,6 +609,33 @@
         btn.textContent = "同期失敗(オフライン)";
       }
       setTimeout(() => { btn.textContent = "API同期"; }, 3000);
+    }
+
+    // 日時変更ボタンの処理
+    document.getElementById('updateNetBtn').addEventListener('click', () => {
+      const inputVal = document.getElementById('netInput').value;
+      if (!inputVal) return;
+    
+      // 1. 選択中ミッションの NET (打ち上げ予定時刻) を更新
+      const newNetDate = new Date(inputVal);
+      mockLaunches[selectedIndex].net = newNetDate.toISOString();
+    
+      // 2. HOLD や SCRUB 状態の解除（必要に応じて）
+      missionState = "RUNNING";
+      document.getElementById('presetBadge').textContent = "PRESET";
+    
+      // 3. UI表示を即座に更新
+      selectLaunch(selectedIndex);
+      alert("リフトオフ時刻を再設定しました。");
+    });
+    
+    // ミッション選択時（selectLaunch）にフォームの初期値をセットする処理を追加
+    function updateTimeInputFromLaunch(launch) {
+      const netDate = new Date(launch.net);
+      // datetime-local 形式 (YYYY-MM-DDTHH:mm) に変換
+      const localIso = new Date(netDate.getTime() - (netDate.getTimezoneOffset() * 60000))
+                        .toISOString().slice(0, 16);
+      document.getElementById('netInput').value = localIso;
     }
 
     // sequences.js の sequencePresets からデータを取得して返すように実装
