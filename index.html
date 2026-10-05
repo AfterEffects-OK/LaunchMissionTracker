@@ -642,7 +642,6 @@
         const data = await response.json();
     
         if (data.results && data.results.length > 0) {
-          // ▼▼▼ ここを差し替えます ▼▼▼
           mockLaunches = data.results.map((item, index) => ({
             id: item.id || String(index + 1),
             name: item.name || "Unknown Mission",
@@ -652,13 +651,10 @@
             net: item.net || new Date().toISOString(),
             window_start: item.window_start || "",
             window_end: item.window_end || "",
-            // 画像/パッチURLを取得
             image: item.image || item.mission?.patch_url || item.rocket?.configuration?.image_url || "",
-            // ライブ配信または Next Spaceflight リンク
             webcast_live: item.vidURLs?.[0]?.url || item.url || "",
             nextSpaceflightUrl: `https://nextspaceflight.com/launches/details/${item.id}`
           }));
-          // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
     
           selectedIndex = 0;
           renderLaunchList();
@@ -679,31 +675,24 @@
       const inputVal = document.getElementById('netInput').value;
       if (!inputVal) return;
     
-      // 1. 選択中ミッションの NET (打ち上げ予定時刻) を更新
       const newNetDate = new Date(inputVal);
       mockLaunches[selectedIndex].net = newNetDate.toISOString();
     
-      // 2. HOLD や SCRUB 状態の解除（必要に応じて）
       missionState = "RUNNING";
       document.getElementById('presetBadge').textContent = "PRESET";
     
-      // 3. UI表示を即座に更新
       selectLaunch(selectedIndex);
       alert("リフトオフ時刻を再設定しました。");
     });
     
-    // ミッション選択時（selectLaunch）にフォームの初期値をセットする処理を追加
     function updateTimeInputFromLaunch(launch) {
       const netDate = new Date(launch.net);
-      // datetime-local 形式 (YYYY-MM-DDTHH:mm:ss) に変換するため slice(0, 19) に変更
       const localIso = new Date(netDate.getTime() - (netDate.getTimezoneOffset() * 60000))
                         .toISOString().slice(0, 19);
       document.getElementById('netInput').value = localIso;
     }
 
-    // sequences.js の sequencePresets からデータを取得して返すように実装
     function getSequencePreset(launch) {
-      // 万が一 sequences.js が読み込まれていない場合の安全策
       const presets = typeof sequencePresets !== 'undefined' ? sequencePresets : { default: { name: "標準ミッション", prefix: "T", timeline: [] } };
 
       const text = `${launch.name} ${launch.provider} ${launch.rocket} ${launch.pad}`.toLowerCase();
@@ -844,16 +833,11 @@
           simT++;
           heldSeconds = simT;
         } else {
-          // 1. 打ち上げ予定時刻(NET)からの経過秒数を計算
           const baseDiff = Math.floor((Date.now() - new Date(launch.net).getTime()) / 1000);
-
-          // 2. ディレイ値（秒）を取得して減算（配信遅延の補正）
           const delayInput = document.getElementById('delayInput');
           const delaySeconds = delayInput ? (parseInt(delayInput.value, 10) || 0) : 0;
 
-          // 配信が遅れている場合、タイマー表示も遅らせるためディレイ分を引く
           diffSeconds = baseDiff - delaySeconds;
-
           heldSeconds = diffSeconds;
         }
       }
@@ -942,7 +926,7 @@
         windowEl.textContent = `Launch Window: 即時ウィンドウ (Instantaneous)`;
       }
 
-      // ▼▼▼ サムネイル画像の表示設定 ▼▼▼
+      // サムネイル画像の表示設定
       const thumbEl = document.getElementById('missionThumb');
       if (thumbEl) {
         if (launch.image) {
@@ -953,11 +937,9 @@
         }
       }
 
-      // ▼▼▼ ライブ配信 / Next Spaceflight リンクの表示設定 ▼▼▼
+      // ライブ配信 / Next Spaceflight リンクの表示設定
       const liveContainer = document.getElementById('liveLinkContainer');
       const liveBtn = document.getElementById('liveLinkBtn');
-      
-      // Next Spaceflight のリンクがあれば優先設定し、無ければ webcast_live を使用
       const targetUrl = launch.nextSpaceflightUrl || launch.webcast_live;
       if (targetUrl && targetUrl.trim() !== "") {
         liveBtn.href = targetUrl;
@@ -972,26 +954,6 @@
 
       simT = -10;
       if (timerInterval) clearInterval(timerInterval);
-      updateDisplay();
-      timerInterval = setInterval(updateDisplay, 1000);
-    }
-
-      updateTimeInputFromLaunch(launch);
-
-      // ライブ配信リンクの表示制御
-      const liveContainer = document.getElementById('liveLinkContainer');
-      const liveBtn = document.getElementById('liveLinkBtn');
-      if (launch.webcast_live && launch.webcast_live.trim() !== "") {
-        liveBtn.href = launch.webcast_live;
-        liveContainer.classList.add('visible');
-      } else {
-        liveBtn.href = "#";
-        liveContainer.classList.remove('visible');
-      }
-
-      simT = -10;
-      if (timerInterval) clearInterval(timerInterval);
-      
       updateDisplay();
       timerInterval = setInterval(updateDisplay, 1000);
     }
@@ -1021,12 +983,12 @@
       document.getElementById('simBtn').style.borderColor = isSimMode ? '#00f2ff' : 'rgba(0, 242, 255, 0.2)';
       updateDisplay();
     });
+
     // HOLD ボタン押下時
     document.getElementById('holdBtn').addEventListener('click', () => {
       if (missionState === "SCRUBBED") return;
     
       if (missionState === "HOLD") {
-        // 現在の heldSeconds を「分」と「秒」に分解してフォームにセット
         const isNegative = heldSeconds < 0;
         const absSec = Math.abs(heldSeconds);
         const m = Math.floor(absSec / 60);
@@ -1050,8 +1012,6 @@
       const mins = parseInt(document.getElementById('restartMinutesInput').value, 10) || 0;
       const secs = parseInt(document.getElementById('restartSecondsInput').value, 10) || 0;
     
-      // 入力された分・秒を合計秒数に変換
-      // 分が負の値（T-指定）の場合は秒も負方向に合わせる
       let totalSeconds = 0;
       if (mins < 0) {
         totalSeconds = (mins * 60) - Math.abs(secs);
@@ -1064,7 +1024,6 @@
       heldSeconds = totalSeconds;
     
       if (!isSimMode) {
-        // リアルタイムモード：新しい T- 秒数に合わせて Target NET を更新
         const launch = mockLaunches[selectedIndex];
         const now = new Date();
         const newNetTime = new Date(now.getTime() - (heldSeconds * 1000));
@@ -1084,6 +1043,11 @@
     
       document.getElementById('holdRestartModal').classList.remove('open');
       updateDisplay();
+    });
+
+    // モーダルのキャンセル処理など
+    document.getElementById('cancelHoldRestart')?.addEventListener('click', () => {
+      document.getElementById('holdRestartModal').classList.remove('open');
     });
 
     renderLaunchList();
