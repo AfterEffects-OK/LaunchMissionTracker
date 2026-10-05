@@ -80,6 +80,13 @@
       flex-wrap: wrap;
     }
 
+    /* datetime-local の内部ピッカー（カレンダーアイコン等）の余白を削る */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+    }
+
     select, button, input, textarea, a.live-link-btn {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border-color);
