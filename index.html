@@ -479,29 +479,18 @@
       <h1>Launch Mission Tracker</h1>
       <div class="controls">
         <!-- 1行目: 進行・状態制御 ＆ 時刻設定 -->
-        <div class="edit-modal" id="holdRestartModal">
-          <div class="modal-content" style="max-width: 400px;">
-            <h3>カウントダウン再開設定</h3>
-            <p style="margin: 10px 0; font-size: 0.9rem; color: var(--text-muted);">
-              再開時のカウントダウン位置（T- / T+ 秒）を指定してください。
-            </p>
-        
-            <!-- 指定用の入力フォーム -->
-            <div style="display: flex; gap: 8px; align-items: center; margin: 15px 0;">
-              <label style="font-size: 0.9rem;">T- 秒数:</label>
-              <input type="number" id="restartSecondsInput" style="flex: 1; padding: 6px 10px; font-size: 0.95rem;">
-            </div>
-        
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-              <button id="cancelHoldRestart">キャンセル</button>
-              <button id="confirmHoldRestart" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">設定してRESTART</button>
-            </div>
-          </div>
+        <div class="control-row">
+          <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
+          <button id="simBtn">シミュレーション切替</button>
+          <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
+          <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
+          
+          <input type="datetime-local" id="netInput" step="1" style="padding: 2px 0px 2px 4px; height: 32px; font-size: 0.85rem;">
+          <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
         </div>
       
         <!-- 2行目: 編集・エディター系ナビゲーション -->
         <div class="control-row" style="justify-content: flex-end;">
-          <button id="simBtn">シミュレーション切替</button>
           <a href="./editor.html" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
           <button id="editBtn">シーケンス編集</button>
         </div>
@@ -576,6 +565,27 @@
       <div style="display: flex; justify-content: flex-end; gap: 10px;">
         <button id="cancelEdit">キャンセル</button>
         <button id="saveEdit">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOLD再開（秒数調整）モーダル -->
+  <div class="edit-modal" id="holdRestartModal">
+    <div class="modal-content" style="max-width: 400px;">
+      <h3>カウントダウン再開設定</h3>
+      <p style="margin: 10px 0; font-size: 0.85rem; color: var(--text-muted);">
+        再開時のカウントダウン位置（秒数）を指定してください。<br>
+        ※ T- 10分の場合は「-600」と入力します。
+      </p>
+  
+      <div style="display: flex; gap: 8px; align-items: center; margin: 15px 0;">
+        <label style="font-size: 0.85rem; white-space: nowrap;">カウントダウン(秒):</label>
+        <input type="number" id="restartSecondsInput" style="flex: 1; padding: 6px 10px; font-size: 0.9rem;">
+      </div>
+  
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button id="cancelHoldRestart">キャンセル</button>
+        <button id="confirmHoldRestart" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">修正してRESTART</button>
       </div>
     </div>
   </div>
