@@ -330,6 +330,13 @@
         <button class="btn-success" id="exportBtn">sequence.js を出力</button>
         <button id="importBtn">ファイルから読込</button>
         <input type="file" id="importFile" style="display: none;" accept=".js,.json">
+        <!-- JSONタブ -->
+        <div id="tabJson" class="tab-content" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label>現在のプリセットのJSONデータ</label> <button type="button" class="btn-success" id="copyPromptBtn" style="font-size: 0.8rem; padding: 4px 10px;">📋 AI用プロンプトをコピー</button>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">直接編集して反映することも可能です（右下をドラッグして枠を広げられます）。</p> <textarea id="jsonTextArea" class="json-output-area"></textarea> <button class="btn-success" id="applyJsonBtn" style="margin-top: 10px;">JSONを適用する</button>
+        </div>
       </div>
     </header>
 
@@ -687,6 +694,44 @@
         }
       };
       reader.readAsText(file);
+    });
+
+    document.getElementById('copyPromptBtn').addEventListener('click', async () => {
+      const promptText = `以下の【テキスト】から打ち上げのミッションシーケンス（イベント情報）を抽出し、指定した【JSONフォーマット】に変換してコードブロック出力してください。
+    
+    【出力ルール】
+    1. 時間表記（T- や T+）は「秒数（数値）」に換算して time に格納してください。
+       - 例: T- 00:35:00 → -2100
+       - 例: T- 00:01:00 → -60
+       - 例: T+ 00:00:00 → 0
+       - 例: T+ 00:02:30 → 150
+    2. 各イベントの名称や説明を日本語で分かりやすく event に記述してください。
+    3. イベントは time の昇順（数字が小さい順）で並べてください。
+    4. 余計な解説文は含めず、有効な JSON のみを出力してください。
+    
+    【JSONフォーマット】
+    [
+      { "time": -2100, "event": "RP-1 燃料 & 液体酸素(LOX) 充填開始" },
+      { "time": 0, "event": "リフトオフ (Liftoff)" },
+      { "time": 150, "event": "MECO (第1段メインエンジン停止)" }
+    ]
+    
+    【テキスト】
+    `;
+    
+      try {
+        await navigator.clipboard.writeText(promptText);
+        alert('AI用プロンプトをクリップボードにコピーしました！\nAIチャットに貼り付けてお使いください。');
+      } catch (err) {
+        // フォールバック（クリップボードAPI非対応時）
+        const tempInput = document.createElement('textarea');
+        tempInput.value = promptText;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('AI用プロンプトをコピーしました！');
+      }
     });
 
     // 起動時の読み込み実行
