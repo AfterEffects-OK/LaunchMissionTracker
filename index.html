@@ -68,7 +68,14 @@
 
     .controls {
       display: flex;
-      gap: 10px;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end; /* 右寄せ */
+    }
+    
+    .control-row {
+      display: flex;
+      gap: 8px;
       align-items: center;
       flex-wrap: wrap;
     }
@@ -464,18 +471,23 @@
     <header>
       <h1>Launch Mission Tracker</h1>
       <div class="controls">
-      <a href="./editor.html" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
-      <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
-      <button id="simBtn">シミュレーション切替</button>
-      <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
-      <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
+        <!-- 1行目: 進行・状態制御 ＆ 時刻設定 -->
+        <div class="control-row">
+          <button id="apiSyncBtn" style="background: rgba(0, 255, 128, 0.15); border-color: #00ff80;">API同期</button>
+          <button id="simBtn">シミュレーション切替</button>
+          <button id="holdBtn" style="background: rgba(255, 170, 0, 0.15); border-color: #ffaa00;">HOLD</button>
+          <button id="scrubBtn" style="background: rgba(255, 68, 68, 0.15); border-color: #ff4444;">SCRUB</button>
+          
+          <input type="datetime-local" id="netInput" style="padding: 6px 10px; font-size: 0.85rem;">
+          <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
+        </div>
       
-      <!-- ▼ リフトオフ時刻変更（入力フォーム＋適用ボタン） ▼ -->
-      <input type="datetime-local" id="netInput" style="padding: 6px 10px; font-size: 0.85rem;">
-      <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
-    
-      <button id="editBtn">シーケンス編集</button>
-    </div>
+        <!-- 2行目: 編集・エディター系ナビゲーション -->
+        <div class="control-row" style="justify-content: flex-end;">
+          <a href="./editor.html" class="btn-link editor-nav-btn">プリセットエディターを開く</a>
+          <button id="editBtn">シーケンス編集</button>
+        </div>
+      </div>
     </header>
 
     <div class="main-grid">
