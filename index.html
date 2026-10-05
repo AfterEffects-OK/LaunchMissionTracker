@@ -921,10 +921,11 @@
 
       const thumbEl = document.getElementById('missionThumb');
       if (thumbEl) {
-        if (launch.image) {
+        if (launch.image && launch.image.trim() !== "") {
           thumbEl.src = launch.image;
           thumbEl.style.display = 'block';
         } else {
+          thumbEl.src = "";
           thumbEl.style.display = 'none';
         }
       }
@@ -932,14 +933,18 @@
       const liveContainer = document.getElementById('liveLinkContainer');
       const liveBtn = document.getElementById('liveLinkBtn');
       const targetUrl = launch.nextSpaceflightUrl || launch.webcast_live;
+
       if (targetUrl && targetUrl.trim() !== "") {
         liveBtn.href = targetUrl;
-        liveBtn.textContent = launch.nextSpaceflightUrl ? "🚀 Next Spaceflight で詳細を見る" : "📺 ライブ配信を見る";
-        liveContainer.classList.add('visible');
+        liveBtn.textContent = launch.nextSpaceflightUrl ? "Next Spaceflight で詳細を見る" : "ライブ配信を見る";
       } else {
-        liveBtn.href = "#";
-        liveContainer.classList.remove('visible');
+        // 詳細リンクがない場合は一覧ページに設定
+        liveBtn.href = "https://nextspaceflight.com/launches/";
+        liveBtn.textContent = "Next Spaceflight 一覧を見る";
       }
+      
+      // リンクの有無にかかわらず常にボタンを表示
+      liveContainer.classList.add('visible');
 
       updateTimeInputFromLaunch(launch);
 
