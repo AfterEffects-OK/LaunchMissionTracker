@@ -869,6 +869,8 @@
         windowEl.textContent = `Launch Window: 即時ウィンドウ (Instantaneous)`;
       }
 
+      updateTimeInputFromLaunch(launch);
+
       // ライブ配信リンクの表示制御
       const liveContainer = document.getElementById('liveLinkContainer');
       const liveBtn = document.getElementById('liveLinkBtn');
