@@ -479,6 +479,8 @@
           
           <input type="datetime-local" id="netInput" step="1" style="padding: 6px 10px; font-size: 0.85rem;">
           <button id="updateNetBtn" style="background: rgba(0, 242, 255, 0.2); border-color: var(--accent-blue);">時刻適用</button>
+          <label for="delayInput" style="font-size: 0.8rem; color: var(--text-muted);">配信遅延(秒):</label>
+          <input type="number" id="delayInput" value="0" min="-3600" max="3600" style="width: 70px; padding: 6px 8px; font-size: 0.85rem;">
         </div>
       
         <!-- 2行目: 編集・エディター系ナビゲーション -->
@@ -784,6 +786,7 @@
     function updateDisplay() {
       const launch = mockLaunches[selectedIndex];
       let diffSeconds = 0;
+
       if (missionState === "SCRUBBED" || missionState === "HOLD") {
         diffSeconds = heldSeconds;
       } else {
@@ -792,7 +795,16 @@
           simT++;
           heldSeconds = simT;
         } else {
-          diffSeconds = Math.floor((Date.now() - new Date(launch.net).getTime()) / 1000);
+          // 1. 打ち上げ予定時刻(NET)からの経過秒数を計算
+          const baseDiff = Math.floor((Date.now() - new Date(launch.net).getTime()) / 1000);
+
+          // 2. ディレイ値（秒）を取得して減算（配信遅延の補正）
+          const delayInput = document.getElementById('delayInput');
+          const delaySeconds = delayInput ? (parseInt(delayInput.value, 10) || 0) : 0;
+
+          // 配信が遅れている場合、タイマー表示も遅らせるためディレイ分を引く
+          diffSeconds = baseDiff - delaySeconds;
+
           heldSeconds = diffSeconds;
         }
       }
