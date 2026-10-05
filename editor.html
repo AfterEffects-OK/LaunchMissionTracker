@@ -330,15 +330,18 @@
         <button class="btn-success" id="exportBtn">sequence.js を出力</button>
         <button id="importBtn">ファイルから読込</button>
         <input type="file" id="importFile" style="display: none;" accept=".js,.json">
-        <!-- JSONタブ -->
-        <div id="tabJson" class="tab-content" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <label>現在のプリセットのJSONデータ</label> <button type="button" class="btn-success" id="copyPromptBtn" style="font-size: 0.8rem; padding: 4px 10px;">📋 AI用プロンプトをコピー</button>
-          </div>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">直接編集して反映することも可能です（右下をドラッグして枠を広げられます）。</p> <textarea id="jsonTextArea" class="json-output-area"></textarea> <button class="btn-success" id="applyJsonBtn" style="margin-top: 10px;">JSONを適用する</button>
-        </div>
       </div>
     </header>
+    <!-- JSONタブ -->
+        <div id="tabJson" class="tab-content" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label>現在のプリセットのJSONデータ</label>
+            <button type="button" class="btn-success" id="copyPromptBtn" style="font-size: 0.8rem; padding: 4px 10px;">📋 AI用プロンプトをコピー</button>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">直接編集して反映することも可能です（右下をドラッグして枠を広げられます）。</p>
+          <textarea id="jsonTextArea" class="json-output-area"></textarea>
+          <button class="btn-success" id="applyJsonBtn" style="margin-top: 10px;">JSONを適用する</button>
+        </div>
 
     <!-- GitHubから直接取得するバー -->
     <div class="github-bar">
