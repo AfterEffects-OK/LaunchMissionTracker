@@ -452,6 +452,10 @@
       resize: vertical;
     }
 
+    .telemetry-grid {
+      display: none !important;
+    }
+
     .editor-nav-btn {
       background: rgba(0, 242, 255, 0.15);
       border: 1px solid rgba(0, 242, 255, 0.2);
@@ -532,7 +536,7 @@
           <a id="liveLinkBtn" class="live-link-btn" href="https://www.spacex.com/launches/crew13" target="_blank" rel="noopener noreferrer">🔴 公式ライブ配信を視聴 (Crew-13)</a>
         </div>
 
-        <div class="telemetry-grid">
+        <div class="telemetry-grid" style="display: none;">
           <div class="telemetry-card">
             <div class="telemetry-label">Velocity (速度)</div>
             <div class="telemetry-value" id="telemetryVelocity">0 km/h</div>
